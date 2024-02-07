@@ -11,7 +11,7 @@ conda activate qiime2-2019.4
 
 adapters=/mnt/lustre/software/anaconda/colsa/envs/qiime2-2019.4/opt/bbmap-38.57-0/resources/adapters.fa
 
-cd ~/neonectria_illumina/EDRR_patho
+cd ~/EDRR_patho
 
 for i in reads/*R1*
 do(
