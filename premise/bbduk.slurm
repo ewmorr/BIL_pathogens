@@ -28,4 +28,5 @@ do(
         -ref=$adapters ktrim=r k=23 mink=11 hdist=1 tpe tbo \
         qtrim=r trimq=10 -minlength=36
 )
+done
 
