@@ -12,16 +12,17 @@ conda activate qiime2-2019.4
 adapters=/mnt/lustre/software/anaconda/colsa/envs/qiime2-2019.4/opt/bbmap-38.57-0/resources/adapters.fa
 
 cd ~/EDRR_patho
-
+#mkdir bbtrimmed_reads
+    
 for i in reads/*R1*
 do(
     dir=${i%/*}
     r1File=${i##*/}
     pre=${r1File%R1*}
     post=${r1File##*R1}
-    r2File=${pre}R2{post}
+    r2File=${pre}R2${post}
     
-    mkdir bbtrimmed_$dir
+
     
     srun bbduk.sh in=$dir/$r1File in2=$dir/$r2File \
         out=bbtrimmed_$dir/$r1File out2=bbtrimmed_$dir/$r2File \
