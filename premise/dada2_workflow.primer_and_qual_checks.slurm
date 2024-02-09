@@ -6,7 +6,7 @@
 
 module purge
 module load anaconda/colsa
-conda activate conda activate r-dada2_new
+conda activate r-dada2_new
 
 cd /mnt/home/garnas/ewj4/EDRR_patho
 
@@ -23,11 +23,11 @@ mkdir /mnt/home/garnas/ewj4/EDRR_patho/cutadapt
 #fwd
 fwd=AGCCTCCGCTTATTGATATGCTTAART
 #fwd.rc
-fwd.rc=AYTTAAGCATATCAATAAGCGGAGGCT
+fwdRC=AYTTAAGCATATCAATAAGCGGAGGCT
 #rev
 rev=AACTTTYRRCAAYGGATCWCT
 #rev.rc
-rev.rc=AGWGATCCRTTGYYRAAAGTT
+revRC=AGWGATCCRTTGYYRAAAGTT
 
 for i in filtN/*
 do(
@@ -38,11 +38,11 @@ do(
     post=${r1File##*R1}
     r2File=${pre}R2${post}
 
-    cutadapt -g $fwd -a $rev.rc \
-        -G $rev -A $fwd.rc \
+    cutadapt -g $fwd -a $revRC \
+        -G $rev -A $fwdRC \
         -m 50 -n 2 \
         -o cutadapt/$r1File -p cutadapt/$r2File \
-        $r1File $r2File
+        $dir/$r1File $dir/$r2File
 )
 done
 
