@@ -8,3 +8,8 @@ initial qual filter test with bbduk
 ```
 sbatch ~/repo/BIL_pathogens/premise/bbduk.slurm
 ```
+read numbers look good
+### Beginnning dada2 workflow by checking primer orientation and read quality
+```
+sbatch ~/repo/BIL_pathogens/premise/dada2_workflow.primer_and_qual_checks.slurm
+```
