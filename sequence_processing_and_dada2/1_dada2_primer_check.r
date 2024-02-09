@@ -30,14 +30,15 @@ FWD.orients <- allOrients(FWD)
 REV.orients <- allOrients(REV)
 
 #remove reads with Ns
+seqDir = "/mnt/home/garnas/ewj4/EDRR_patho/filtN"
+if(!dir.exists(seqDir)) dir.create(seqDir)
+
 fnFs.filtN <- file.path("/mnt/home/garnas/ewj4/EDRR_patho", "filtN", basename(fnFs)) # Put N-filterd files in filtN/ subdirectory
 fnRs.filtN <- file.path("/mnt/home/garnas/ewj4/EDRR_patho", "filtN", basename(fnRs))
 out.filtN = filterAndTrim(fnFs, fnFs.filtN, fnRs, fnRs.filtN, maxN = 0, multithread = TRUE)
 
-#Reset the filename lists in case files are lost at trimming
-seqDir = "/mnt/home/garnas/ewj4/EDRR_patho/filtN"
 list.files(seqDir)
-
+#Reset the filename lists in case files are lost at trimming
 #parse and sort file names, adjust regex as needed
 fnFs.filtN <- sort(list.files(seqDir, pattern = "_R1_001.fastq.gz", full.names = TRUE))
 fnRs.filtN <- sort(list.files(seqDir, pattern = "_R2_001.fastq.gz", full.names = TRUE))
