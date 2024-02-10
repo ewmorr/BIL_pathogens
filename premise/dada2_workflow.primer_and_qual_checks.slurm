@@ -13,11 +13,6 @@ cd /mnt/home/garnas/ewj4/EDRR_patho
 #Run first R scripts
 Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/1_dada2_primer_check.r
 
-conda deactivate
-
-module purge
-module load linuxbrew/colsa
-
 mkdir /mnt/home/garnas/ewj4/EDRR_patho/cutadapt
 
 #fwd
@@ -45,10 +40,6 @@ do(
         $dir/$r1File $dir/$r2File
 )
 done
-
-module purge
-module load anaconda/colsa
-conda activate r-dada2_new
 
 Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/2_post_cutadapt_primer_check.r
 #this is a good place to stop to check primer orientation and quality profiles
