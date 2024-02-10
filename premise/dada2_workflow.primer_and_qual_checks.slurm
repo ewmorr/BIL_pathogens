@@ -13,7 +13,7 @@ cd /mnt/home/garnas/ewj4/EDRR_patho
 #Run first R scripts
 Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/1_dada2_primer_check.r
 
-mkdir /mnt/home/garnas/ewj4/EDRR_patho/cutadapt
+#mkdir /mnt/home/garnas/ewj4/EDRR_patho/cutadapt
 
 #fwd
 fwd=AGCCTCCGCTTATTGATATGCTTAART
@@ -24,7 +24,7 @@ rev=AACTTTYRRCAAYGGATCWCT
 #rev.rc
 revRC=AGWGATCCRTTGYYRAAAGTT
 
-for i in filtN/*
+for i in filtN/*R1*
 do(
 
     dir=${i%/*}
