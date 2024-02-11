@@ -7,7 +7,7 @@ packageVersion("Biostrings")
 
 
 seqDir = "/mnt/home/garnas/ewj4/EDRR_patho/reads"
-list.files(seqDir)
+#list.files(seqDir)
 
 #parse and sort file names, adjust regex as needed
 fnFs <- sort(list.files(seqDir, pattern = "_R1_001.fastq.gz", full.names = TRUE))
@@ -37,7 +37,7 @@ fnFs.filtN <- file.path("/mnt/home/garnas/ewj4/EDRR_patho", "filtN", basename(fn
 fnRs.filtN <- file.path("/mnt/home/garnas/ewj4/EDRR_patho", "filtN", basename(fnRs))
 out.filtN = filterAndTrim(fnFs, fnFs.filtN, fnRs, fnRs.filtN, maxN = 0, multithread = TRUE)
 
-list.files(seqDir)
+#list.files(seqDir)
 #Reset the filename lists in case files are lost at trimming
 #parse and sort file names, adjust regex as needed
 fnFs.filtN <- sort(list.files(seqDir, pattern = "_R1_001.fastq.gz", full.names = TRUE))
@@ -54,7 +54,7 @@ x = rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs.filtN[[1]
 FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = fnRs.filtN[[1]]),
 REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs.filtN[[1]]),
 REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs.filtN[[1]]))
-write.csv(x, "/mnt/home/garnas/ewj4/EDRR_patho/dada2_processing_tables_figs/pre_trimming_primer_check.csv")
+write.csv(x, "/mnt/home/garnas/ewj4/EDRR_patho/dada2_processing_tables_figs/pre_primerTrim_primer_check.csv")
 
 #Vis read quality
 #If running on a large sample set should index the filename object to [1:25] otherwise will be unreadable
