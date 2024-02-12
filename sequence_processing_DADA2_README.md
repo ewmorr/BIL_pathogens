@@ -15,3 +15,18 @@ conda create --name itsxpress_2x_mod --clone template
 conda activate itsxpress_2x_mod
 conda install conda-build
 conda develop itsxpress_2x_mod
+```
+The above is not working well. Will have to retry. Old version of itsxpress mod is installed at .local/bin
+```
+conda create --name trim_3p --clone template #on premise clone the template
+#conda create -n trim_3p pip hmmer bbmap vsearch biopython
+conda activate trim_3p
+conda install pip hmmer bbmap vsearch=2.19 biopython=1.60 python=3.6
+
+git clone https://github.com/ewmorr/itsxpress.git
+cd ~/repo/itsxpress
+git branch
+git branch 3p_trim origin/3p_trim
+git checkout 3p_trim
+pip install --user -e .
+

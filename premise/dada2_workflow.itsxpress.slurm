@@ -23,7 +23,7 @@ do(
     r2File=${pre}R2${post}
 
     itsxpress --fastq $dir/$r1File --fastq2 $dir/$r2File \
-        --reversed_primers --threads 24 --cluster_id 1 --taxa Fungi \
+        --reversed_primers --threads 24 --cluster_id 1 --taxa Fungi --region ITS2 \
         --outfile itsxpress_out/$r1File --outfile2 itsxpress_out/$r2File
 )
 done
