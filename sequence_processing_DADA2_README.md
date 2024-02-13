@@ -17,8 +17,12 @@ mamba install -c bioconda itsxpress --only-deps
 cd ~/repo
 git clone https://github.com/USDA-ARS-GBRU/itsxpress.git itsxpress_2x_mod
 cd itsxpress_2x_mod
-pip install --no-build-isolation --no-deps -e .
+git branch 3p_trim
+git checkout 3p_trim
+#make the desired mods to Dedup.py
 
+pip install --no-build-isolation --no-deps -e .
+#Successfully installed itsxpress-2.0.1
 ```
  Old version of itsxpress mod is installed at .local/bin and 3p_trim env
 ```
@@ -76,3 +80,20 @@ do(
 done
 ```
 merging and derep with vsearch. Note that without --allow-merge-stagger about 80-90% of reads fail merging due to staggered merge. This is true for both the mod and unmod version of the itsxpress pipe. The mod should probably be -1 `[start:start+tlen-1]` to avoid this. try this if can get itsxpress_2x_mod set up on server
+```
+for i in itsxpress_mod_out/*R1*
+do(
+
+    dir=${i%/*}
+    r1File=${i##*/}
+    pre=${r1File%R1*}
+    post=${r1File##*R1}
+    r2File=${pre}R2${post}
+
+    vsearch --fastq_mergepairs $dir/$r1File --reverse $dir/$r2File \
+        --fastqout itsx_test/$pre.merged.fastq.gz \
+        --fastq_allowmergestagger
+    vsearch --fastx_uniques itsx_test/$pre.merged.fastq.gz --fastaout itsx_test/$pre.unique.fasta
+)
+done
+
