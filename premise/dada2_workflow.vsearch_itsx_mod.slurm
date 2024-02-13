@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --job-name="dada2"
+#SBATCH --job-name="vsearch"
 #SBATCH --output=dada2_workflow.itsxpress.out
 #SBATCH --partition=shared
 #SBATCH --cpus-per-task=24
