@@ -10,18 +10,17 @@ dada2_workflow.primer_and_qual_checks.slurm
 ### The modification is at line 89 of Dedup.py
 https://github.com/conda/conda-build/issues/4251
 ```
-cd repo
-git clone https://github.com/USDA-ARS-GBRU/itsxpress.git itsxpress_2x_mod
 conda create --name itsxpress_2x_mod --clone template
 conda activate itsxpress_2x_mod
-mamba install -c bioconda itsxpress "python=3.9"B; conda remove itsxpress
+mamba install -c bioconda itsxpress --only-deps
 
 cd ~/repo
 git clone https://github.com/USDA-ARS-GBRU/itsxpress.git itsxpress_2x_mod
+cd itsxpress_2x_mod
 pip install --no-build-isolation --no-deps -e .
 
 ```
-The above is not working well. Will have to retry. Old version of itsxpress mod is installed at .local/bin
+ Old version of itsxpress mod is installed at .local/bin and 3p_trim env
 ```
 conda create --name trim_3p --clone template #on premise clone the template
 #conda create -n trim_3p pip hmmer bbmap vsearch biopython
@@ -35,7 +34,7 @@ git branch 3p_trim origin/3p_trim
 git checkout 3p_trim
 pip install --user -e .
 ```
-The local version (itsxpress 1.8) of the 3' trim mod is installed locally and working under itsxpress_3p conda env. The executable is within the conda env. Can do local install of the newer version and mod
+The local (my laptop) version (itsxpress 1.8) of the 3' trim mod is installed locally and working under itsxpress_3p conda env. The executable is within the conda env. Can do local install of the newer version and mod
 ``` 
 cd repo
 git clone https://github.com/USDA-ARS-GBRU/itsxpress.git itsxpress_2x_mod
@@ -75,4 +74,5 @@ do(
         --outfile itsxpress_mod_out/$r1File --outfile2 itsxpress_mod_out/$r2File
 )
 done
-
+```
+merging and derep with vsearch. Note that without --allow-merge-stagger about 80-90% of reads fail merging due to staggered merge. This is true for both the mod and unmod version of the itsxpress pipe. The mod should probably be -1 `[start:start+tlen-1]` to avoid this. try this if can get itsxpress_2x_mod set up on server
