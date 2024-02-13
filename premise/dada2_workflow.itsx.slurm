@@ -17,9 +17,8 @@ do(
 
     ITSx -i $i -o $sample \
     -p ~/repo/itsxpress_2x_mod/itsxpress/ITSx_db/HMMs \
-    --save_regions ITS2 \
-    -t F -N 1 \ #N is the minimal number of domains to include a seq. default is 2. need 1
-    --cpu 24 --graphical F --fasta F
+    -t F --allow_single_domain \
+    --cpus 24 --graphical F --fasta F
 )
 done
 
