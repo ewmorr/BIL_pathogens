@@ -16,9 +16,9 @@ do(
     sample=${i%.unique*}
 
     ITSx -i $i -o $sample \
-    -p ~/repo/itsxpress_2x_mod/itsxpress/ITSx_db/HMMs \
-    -t F --allow_single_domain \
-    --cpus 24 --graphical F --fasta F
+    -t F --allow_single_domain 1e-5,0 \
+    --cpus 24 --graphical F --fasta F \
+    -p ~/repo/itsxpress_2x_mod/itsxpress/ITSx_db/HMMs
 )
 done
 

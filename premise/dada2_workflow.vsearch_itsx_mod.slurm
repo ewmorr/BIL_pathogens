@@ -11,9 +11,9 @@ conda activate itsxpress_2x
 
 cd /mnt/home/garnas/ewj4/EDRR_patho
 
-mkdir itsx_test
+mkdir itsx_mod_test
 
-for i in itsxpress_out/*R1*
+for i in itsxpress_mod_out/*R1*
 do(
 
     dir=${i%/*}
@@ -23,10 +23,9 @@ do(
     r2File=${pre}R2${post}
 
     vsearch --fastq_mergepairs $dir/$r1File --reverse $dir/$r2File \
-        --fastqout itsx_test/$pre.merged.fastq.gz \
-        --fastq_allowmergestagger
+        --fastqout itsx_test/$pre.merged.fastq.gz #\
+        #--fastq_allowmergestagger
     vsearch --fastx_uniques itsx_test/$pre.merged.fastq.gz --fastaout itsx_test/$pre.unique.fasta
 )
 done
 
-itsxpress --fastq itsx_test/EPV_19_S19_L001_.unique.fastq -s --outfile test_EPV_19.fastq --cluster_id 1 --threads 8 --region ITS2 --taxa Fungi
