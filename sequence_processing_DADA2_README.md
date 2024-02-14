@@ -80,6 +80,7 @@ do(
 done
 ```
 merging and derep with vsearch. Note that without --allow-merge-stagger about 80-90% of reads fail merging due to staggered merge. This is true for both the mod and unmod version of the itsxpress pipe. The mod should probably be -1 `[start:start+tlen-1]` to avoid this. try this if can get itsxpress_2x_mod set up on server
+### After adding the -1 the --alow-merge-stager flag is no longer needed. I.e., reads pass at a normal rate, there are no staggered. This in itself points to a problem in the vanilla program
 ```
 for i in itsxpress_mod_out/*R1*
 do(

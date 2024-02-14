@@ -10,14 +10,14 @@ module load linuxbrew/colsa
 
 cd /mnt/home/garnas/ewj4/EDRR_patho/itsx_test
 
-for i in *unique.fasta
+for i in EPV_19_*unique.fasta
 do(
 
     sample=${i%.unique.fasta}
 
     ITSx -i $i -o $sample \
-    -t F --allow_single_domain 1,10 \
-    -E 1 --cpus 24 \
+    -t F --allow_single_domain 0.01,10 \
+    -E 0.01 --cpus 24 \
     -p ~/repo/itsxpress_2x_mod/itsxpress/ITSx_db/HMMs
 )
 done

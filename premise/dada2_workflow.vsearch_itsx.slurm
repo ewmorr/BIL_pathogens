@@ -28,5 +28,3 @@ do(
     vsearch --fastx_uniques itsx_test/$pre.merged.fastq.gz --fastaout itsx_test/$pre.unique.fasta
 )
 done
-
-itsxpress --fastq itsx_test/EPV_19_S19_L001_.unique.fastq -s --outfile test_EPV_19.fastq --cluster_id 1 --threads 8 --region ITS2 --taxa Fungi

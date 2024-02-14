@@ -12,6 +12,7 @@ conda activate itsxpress_2x_mod
 cd /mnt/home/garnas/ewj4/EDRR_patho
 
 mkdir itsxpress_mod_out
+outdir=itsxpress_mod_out
 
 for i in cutadapt/*R1*
 do(
@@ -22,11 +23,11 @@ do(
     post=${r1File##*R1}
     r2File=${pre}R2${post}
 
-    if [ ! -f itsxpress_mod_out/$r2File ]; then
+    #if [ ! -f itsxpress_mod_out/$r2File ]; then
         itsxpress --fastq $dir/$r1File --fastq2 $dir/$r2File \
             --reversed_primers --threads 24 --cluster_id 1 --taxa Fungi --region ITS2 \
-            --outfile itsxpress_mod_out/$r1File --outfile2 itsxpress_mod_out/$r2File
-    fi
+            --outfile $outdir/$r1File --outfile2 $outdir/$r2File
+    #fi
 )
 done
 

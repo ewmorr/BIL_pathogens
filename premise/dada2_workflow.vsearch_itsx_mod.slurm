@@ -23,9 +23,9 @@ do(
     r2File=${pre}R2${post}
 
     vsearch --fastq_mergepairs $dir/$r1File --reverse $dir/$r2File \
-        --fastqout itsx_test/$pre.merged.fastq.gz #\
+        --fastqout itsx_mod_test/$pre.merged.fastq.gz #\
         #--fastq_allowmergestagger
-    vsearch --fastx_uniques itsx_test/$pre.merged.fastq.gz --fastaout itsx_test/$pre.unique.fasta
+    vsearch --fastx_uniques itsx_mod_test/$pre.merged.fastq.gz --fastaout itsx_mod_test/$pre.unique.fasta
 )
 done
 
