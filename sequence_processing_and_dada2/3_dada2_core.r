@@ -88,7 +88,7 @@ saveRDS(seqtab.nochim, file = file.path(outDir, "dada2_seq_table_no_chim.rds"))
 
 #lengths of consensus sequences
 table(nchar(getSequences(seqtab.nochim)))
-write.csv(table(nchar(getSequences(seqtab.nochim))), file.path(outDir, "dada2_processing_tables_figs/asv_lens.csv"))
+write.csv(table(nchar(getSequences(seqtab.nochim))), file.path(outDir, "asv_lens.csv"))
 
 ###
 #Track reads through the pipeline
@@ -115,19 +115,19 @@ for (i in 1:dim(seqtab.nochim)[2]) {
 
 # making and writing out a fasta of our final ASV seqs:
 asv_fasta <- c(rbind(asv_headers, asv_seqs))
-write(asv_fasta, file.path(outDir, "dada2_processing_tables_figs/ASVs.fa"))
+write(asv_fasta, file.path(outDir, "ASVs.fa"))
 
 # count table:
 asv_tab <- t(seqtab.nochim)
 row.names(asv_tab) <- sub(">", "", asv_headers)
-write.table(asv_tab, file.path(outDir, "dada2_processing_tables_figs/ASVs_counts.tsv"), sep="\t", quote=F, col.names=NA)
+write.table(asv_tab, file.path(outDir, "ASVs_counts.tsv"), sep="\t", quote=F, col.names=NA)
 
 # tax table:
 asv_tax <- taxa.w_bootstraps$tax
 row.names(asv_tax) <- sub(">", "", asv_headers)
-write.table(asv_tax, file.path(outDir, "dada2_processing_tables_figs/ASVs_taxonomy.tsv"), sep="\t", quote=F, col.names=NA)
+write.table(asv_tax, file.path(outDir, "ASVs_taxonomy.tsv"), sep="\t", quote=F, col.names=NA)
 #bottstraps
 asv_tax_boot = taxa.w_bootstraps$boot
 row.names(asv_tax_boot) <- sub(">", "", asv_headers)
-write.table(asv_tax_boot, file.path(outDir, "dada2_processing_tables_figs/ASVs_taxonomy_bootstrapVals.tsv"), sep="\t", quote=F, col.names=NA)
+write.table(asv_tax_boot, file.path(outDir, "ASVs_taxonomy_bootstrapVals.tsv"), sep="\t", quote=F, col.names=NA)
 
