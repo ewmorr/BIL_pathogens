@@ -97,7 +97,7 @@ getN <- function(x) sum(getUniques(x))
 #####
 #assign taxonomy against unite with RDB
 print("taxonomy assignment with naive bayesian classifier")
-unite.ref <- "/mnt/lz01/hcgs/shared/databases/unite/sh_taxonomy_qiime_ver9_dynamic_29.11.2022.txt"
+unite.ref <- "/mnt/lz01/hcgs/shared/databases/unite/sh_refs_qiime_ver9_dynamic_29.11.2022.fasta"
 taxa.w_bootstraps <- assignTaxonomy(seqtab.nochim, unite.ref, multithread = TRUE, tryRC = TRUE, outputBootstraps = T)
 taxa.print <- taxa.w_bootstraps$tax  # Removing sequence rownames for display only
 rownames(taxa.print) <- NULL
