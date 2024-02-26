@@ -8,7 +8,7 @@
 module purge
 module load linuxbrew/colsa
 
-cd /mnt/home/garnas/ewj4/EDRR_patho/
+cd /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_dada2_core
 
 ITSx -i ASVs.fa -o out_itsx \
     -t F --allow_single_domain 0.00001,10 \
