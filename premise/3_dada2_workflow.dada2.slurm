@@ -11,11 +11,11 @@ conda activate r-dada2_new
 cd /mnt/home/garnas/ewj4/EDRR_patho
 
 #Run first R scripts
-mkdir /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_dada2_core
+#mkdir /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_dada2_core
 
-Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/3_dada2_core.r /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_out /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_dada2_core
+#Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/3_dada2_core.r /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_out /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_dada2_core
 
-mkdir /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core
+#mkdir /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core
 
 Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/3_dada2_core.r /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_out /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core
 
