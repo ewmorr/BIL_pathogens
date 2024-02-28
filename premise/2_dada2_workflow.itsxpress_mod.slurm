@@ -24,7 +24,7 @@ do(
     r2File=${pre}R2${post}
 
     #if [ ! -f itsxpress_mod_out/$r2File ]; then
-        ~/.local/bin/itsxpressitsxpress --fastq $dir/$r1File --fastq2 $dir/$r2File \
+        ~/.local/bin/itsxpress --fastq $dir/$r1File --fastq2 $dir/$r2File \
             --reversed_primers --threads 24 --cluster_id 1 --taxa Fungi --region ITS2 \
             --outfile $outdir/$r1File --outfile2 $outdir/$r2File
     #fi
