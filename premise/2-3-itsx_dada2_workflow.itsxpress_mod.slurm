@@ -31,7 +31,7 @@ module load anaconda/colsa
 
 #conda deactivate
 
-conda activate conda activate r-dada2_new
+conda activate r-dada2_new
 
 Rscript ~/repo/BIL_pathogens/sequence_processing_and_dada2/3_dada2_core.r /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_out /mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core
 
