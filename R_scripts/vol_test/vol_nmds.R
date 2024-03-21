@@ -1,0 +1,248 @@
+library(vegan)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+source("R_scripts/library.R")
+
+#read distance
+bray_dist = readRDS("data/vol_test/vol.no_min.bray.rds")
+brayLog_dist = readRDS("data/vol_test/vol.no_min.bray-logCounts.rds")
+brayBin_dist = readRDS("data/vol_test/vol.no_min.bray-binary.rds")
+
+#read metadata
+source("R_scripts/vol_test/read_data_and_split_objects.R")
+#add a var for blanks
+metadata.vol$blank = ifelse(metadata.vol$volumeOrWash == 0, "blank", "sample")
+
+#####################################
+#Run NMDS and join points to metadata
+set.seed(1234)
+
+bray.nmds = metaMDS(comm = bray_dist, autotransform = F)
+brayLog.nmds = metaMDS(comm = brayLog_dist, autotransform = F)
+brayBin.nmds = metaMDS(comm = brayBin_dist, autotransform = F)
+
+str(bray.nmds)
+
+vol.ord = data.frame(
+    sequenceID = row.names(bray.nmds$points),
+    NMDS1.bray = bray.nmds$points[,1],
+    NMDS2.bray = bray.nmds$points[,2],
+    NMDS1.brayLog = brayLog.nmds$points[,1],
+    NMDS2.brayLog = brayLog.nmds$points[,2],
+    NMDS1.brayBin = brayBin.nmds$points[,1],
+    NMDS2.brayBin = brayBin.nmds$points[,2]
+)
+
+vol.nmds.metadata = left_join(
+    vol.ord,
+    metadata.vol,
+    by = "sequenceID"
+)
+
+#filter blanks out
+
+sample_names = vol.nmds.metadata %>%
+    filter(blank != "blank") %>%
+    pull("sequenceID")
+
+
+bray_dist.no_blank = as.matrix(bray_dist)[sample_names,sample_names] %>% as.dist
+brayLog_dist.no_blank = as.matrix(brayLog_dist)[sample_names,sample_names] %>% as.dist
+brayBin_dist.no_blank = as.matrix(brayBin_dist)[sample_names,sample_names] %>% as.dist
+
+metadata.vol.no_blank = metadata.vol %>%
+    filter(blank != "blank")
+
+bray.nmds = metaMDS(comm = bray_dist.no_blank, autotransform = F)
+brayLog.nmds = metaMDS(comm = brayLog_dist.no_blank, autotransform = F)
+brayBin.nmds = metaMDS(comm = brayBin_dist.no_blank, autotransform = F)
+
+vol.ord = data.frame(
+    sequenceID = row.names(bray.nmds$points),
+    NMDS1.bray = bray.nmds$points[,1],
+    NMDS2.bray = bray.nmds$points[,2],
+    NMDS1.brayLog = brayLog.nmds$points[,1],
+    NMDS2.brayLog = brayLog.nmds$points[,2],
+    NMDS1.brayBin = brayBin.nmds$points[,1],
+    NMDS2.brayBin = brayBin.nmds$points[,2]
+)
+
+vol.nmds.metadata.no_blank = left_join(
+    vol.ord,
+    metadata.vol.no_blank,
+    by = "sequenceID"
+)
+
+
+#####################################
+
+#############
+#adonis tests
+
+#blanks
+adonis2(bray_dist ~ blank, data = vol.nmds.metadata)
+#p = 0.047
+adonis2(brayLog_dist ~ blank, data = vol.nmds.metadata)
+#p = 0.009
+adonis2(brayBin_dist ~ blank, data = vol.nmds.metadata)
+#p = 0.002
+
+#site*date
+
+#these are pseudo repped because of the volume...
+adonis2(bray_dist.no_blank ~ site+mdy(date)+volumeOrWash, data = vol.nmds.metadata.no_blank, by = "margin")
+#site p = 0.001
+#date p = 0.001
+adonis2(bray_dist.no_blank ~ site*mdy(date) + volumeOrWash^2, data = vol.nmds.metadata.no_blank, by = "margin")
+#site:date p = 0.001
+adonis2(bray_dist.no_blank ~ site*mdy(date)*volumeOrWash, data = vol.nmds.metadata.no_blank, by = "terms")
+#the tests of marginal effects have little effect on the p-val compared to the sequential effects
+
+adonis2(brayLog_dist.no_blank ~ site*mdy(date)*volumeOrWash, data = vol.nmds.metadata.no_blank, by = "terms")
+#site p = 0.001
+#date p = 0.001
+#site:date p = 0.001
+adonis2(brayBin_dist.no_blank ~ (site*mdy(date)*volumeOrWash)^2, data = vol.nmds.metadata.no_blank, by = "terms")
+#site p = 0.001
+#date p = 0.001
+#site:date p = 0.001
+
+#############
+
+
+#############
+#Plots
+
+#blanks comps
+p1 = ggplot(
+    vol.nmds.metadata,
+    aes(x = NMDS1.bray, y = NMDS2.bray, shape = blank, size = blank, color = collectionID)
+) +
+    geom_point() +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = c(7, 16)) +
+    scale_size_manual(values = c("blank" = 3.5, "sample" = 2.5)) +
+    my_gg_theme +
+    labs(
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Bray-Curtis"
+    )
+p1
+
+p2 = ggplot(
+    vol.nmds.metadata,
+    aes(x = NMDS1.brayLog, y = NMDS2.brayLog, shape = blank, color = collectionID, size = blank)
+) +
+    geom_point() +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = c(7, 16)) +
+    scale_size_manual(values = c("blank" = 3.5, "sample" = 2.5)) +
+    my_gg_theme +
+    labs(
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Bray-Curtis (log+1)"
+    )
+p2
+
+p3 = ggplot(
+    vol.nmds.metadata,
+    aes(x = NMDS1.brayBin, y = NMDS2.brayBin, shape = blank, color = collectionID, size = blank)
+) +
+    geom_point() +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = c(7, 16)) +
+    scale_size_manual(values = c("blank" = 3.5, "sample" = 2.5)) +
+    my_gg_theme +
+    labs(
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Binary Bray-Curtis"
+    )
+p3
+
+#site : date comps
+vol.nmds.metadata.no_blank$mdy = mdy(vol.nmds.metadata.no_blank$date) %>% scales::date_format(.,format = "%m-%d")
+
+#labeller function for color scale
+Date_F <- function(x){
+    month.name[as.numeric(format(as.Date(x, format = "%m-%d-%Y"),"%m"))]
+}
+Date_F(vol.nmds.metadata.no_blank$mdy)
+
+p4 = ggplot(
+    vol.nmds.metadata.no_blank,
+    aes(x = NMDS1.bray, y = NMDS2.bray, shape = site, fill = mdy)
+) +
+    geom_point(size = 3.5) +
+    scale_shape_manual(values = c(21,22,24)) +
+    scale_fill_gradient(high = "red", low = "blue", labels = Date_F) +
+    my_gg_theme +
+    labs(
+        fill = "Date",
+        shape = "Site",
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Bray-Curtis"
+    ) +
+    theme(
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16)
+    )
+p4
+
+p5 = ggplot(
+    vol.nmds.metadata.no_blank,
+    aes(x = NMDS1.brayLog, y = NMDS2.brayLog, shape = site, fill = mdy)
+) +
+    geom_point(size = 3.5) +
+    scale_shape_manual(values = c(21,22,24)) +
+    scale_fill_gradient(high = "red", low = "blue", labels = Date_F) +
+    my_gg_theme +
+    labs(
+        fill = "Date",
+        shape = "Site",
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Bray-Curtis (log+1)"
+    ) +
+    theme(
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16)
+    )
+p5
+
+#site and date
+p6 = ggplot(
+    vol.nmds.metadata.no_blank,
+    aes(x = NMDS1.brayBin, y = NMDS2.brayBin, shape = site, fill = mdy)
+) +
+    geom_point(size = 3.5) +
+    scale_shape_manual(values = c(21,22,24)) +
+    scale_fill_gradient(high = "red", low = "blue", labels = Date_F) +
+    my_gg_theme +
+    labs(
+        fill = "Date",
+        shape = "Site",
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Binary Bray-Curtis"
+    ) +
+    theme(
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16)
+    )
+p6
+
+
+pdf("figures/vol_test/vol_nmds.pdf", width = 8, height = 6)
+p1
+p2
+p3
+p4
+p5
+p6
+dev.off()
+
