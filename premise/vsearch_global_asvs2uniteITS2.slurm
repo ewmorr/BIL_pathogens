@@ -30,7 +30,15 @@ outFile=/mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core/taxonomy_vsear
 
 # --maxaccepts determines the number of good matches (i.e., above the %id threshold) found before terminating the search (and the number of hits reported if maxaccepts is not set); --maxrejects determines the numbner of failed matches before termination. The search order is determined by first 'U sorting', i.e., sorting based on the number of shared 8-mers in attempt to look for the best hits first, and then results are reported in order of %ID. Because UNITE is already clustered the top hit *should* be better than all others (by the OTU clustering threshold of the DB) in cases where there is a *good* match (like within the clustering threshold or greater) but this fails when there are no good hits. In this case we may like to use LCA taxonomic assignment so we will want to report more than just the top hit. Increase --maxaccepts to 25 from the default 1, and maxrejects to 100 to increase sensitivity in the case of poor matches.
 
+
+#vsearch --usearch_global $fastaIn --userout $outFile \
+#    --userfields query+target+id+alnlen+mism+opens --db $db --threads 24 \
+#    --maxaccepts 25 --maxrejects 100 --id 0.75 --iddef 1 \
+#    --notrunclabels --output_no_hits --minseqlength 16
+
+#also outputing only top hits for plotting purposes
+outFile=/mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core/taxonomy_vsearch_global.top_hits.tsv
 vsearch --usearch_global $fastaIn --userout $outFile \
     --userfields query+target+id+alnlen+mism+opens --db $db --threads 24 \
     --maxaccepts 25 --maxrejects 100 --id 0.75 --iddef 1 \
-    --notrunclabels --output_no_hits --minseqlength 16
+    --notrunclabels --output_no_hits --minseqlength 16 --maxhits 1
