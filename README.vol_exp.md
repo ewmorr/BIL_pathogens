@@ -38,5 +38,7 @@ wash_nmds.R
 
 ## Taxonomic assignment and analysis
 ### We ran the usual RDP-NBC classifier implemented in dada2, but we would like to be able to report a %identity as a measure of confidence of the tax assignment (the NBC bootstrap values are difficult to understand and may not be super meaningful e.g., https://www.drive5.com/usearch/manual/cvi.html)
-### BLAST would be fine, but we may implement vsearch --usearch_global functions as a stand-on for blast by performing global seq similarity assignment. For global (and not local search as implemented in BLAST) we will ideally trim the reference database to include the same sites as the query (i.e., positional homology). We therefore run UNITE through ITSx to produce ITS2 seqs.
-
+### BLAST would be fine, but we may implement vsearch --usearch_global functions as a stand-on for blast by performing global seq similarity assignment. For global (and not local search as implemented in BLAST) we will ideally trim the reference database to include the same sites as the query (i.e., positional homology) and https://www.drive5.com/usearch/manual7/db_trim.html. We therefore run UNITE through ITSx to produce ITS2 seqs.
+```
+sbatch ~/repo/BIL_pathogens/premise/ITSx_UNITE.slurm
+```
