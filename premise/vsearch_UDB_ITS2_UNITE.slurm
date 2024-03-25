@@ -11,4 +11,5 @@ module load linuxbrew/colsa
 cd /mnt/home/garnas/ewj4/blast_dbs/unite_07252023
 
 vsearch --makeudb_usearch sh_general_allEuk_dynamic_singletons_25072023.ITS2.fasta \
-    --output sh_general_allEuk_dynamic_singletons_25072023.ITS2.udb --notrunclabels --threads 24
+    --output sh_general_allEuk_dynamic_singletons_25072023.ITS2.udb \
+        --minseqlength 16 --notrunclabels --threads 24
