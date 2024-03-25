@@ -10,9 +10,9 @@ module load linuxbrew/colsa
 
 cd /mnt/home/garnas/ewj4/blast_dbs/unite_07252023
 
-fastaIn=
-db=db.udb
-outFile=
+fastaIn=/mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core/ASVs.fa
+db=/mnt/home/garnas/ewj4/blast_dbs/unite_07252023/sh_general_allEuk_dynamic_singletons_25072023.ITS2.udb
+outFile=/mnt/home/garnas/ewj4/EDRR_patho/itsxpress_mod_dada2_core/taxonomy_vsearch_global.tsv
 
 #we are making user dfined output fields instead of using the --blast6out format.
 # the b6 format has six fields that are meaningless with global nt alignments
@@ -33,4 +33,4 @@ outFile=
 vsearch --usearch_global $fastaIn --userout $outFile \
     --userfields query+target+id+alnlen+mism+opens --db $db --threads 24 \
     --maxaccepts 25 --maxrejects 100 --id 0.75 --iddef 1 \
-    --notrunclabels --output_no_hits
+    --notrunclabels --output_no_hits --minseqlength 16
