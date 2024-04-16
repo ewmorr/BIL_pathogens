@@ -17,6 +17,9 @@ saveRDS(taxa.w_bootstraps, file.path(outDir, "taxa_w_bootstraps.rds"))
 # tax table:
 asv_tax <- taxa.w_bootstraps$tax
 asv_headers <- vector(dim(seqtab.nochim)[2], mode="character")
+for (i in 1:dim(seqtab.nochim)[2]) {
+    asv_headers[i] <- paste(">ASV", i, sep="_")
+}
 row.names(asv_tax) <- sub(">", "", asv_headers)
 write.table(asv_tax, file.path(outDir, "ASVs_taxonomy.tsv"), sep="\t", quote=F, col.names=NA)
 #bottstraps

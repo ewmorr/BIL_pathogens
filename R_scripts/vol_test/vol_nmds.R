@@ -163,22 +163,100 @@ p3 = ggplot(
     )
 p3
 
+
+####
+#shape size is vol
+
+p4 = ggplot(
+    vol.nmds.metadata,
+    aes(x = NMDS1.bray, y = NMDS2.bray, shape = blank, size = as.factor(volumeOrWash), color = collectionID)
+) +
+    geom_point() +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = c(7, 16)) +
+    scale_size_manual(values = c("0" = 3.5, "5" = 1, "10" = 1.5, "20" = 2, "40" = 2.5, "80" = 3)) +
+    my_gg_theme +
+    labs(
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Bray-Curtis"
+    )
+p4
+
+p5 = ggplot(
+    vol.nmds.metadata,
+    aes(x = NMDS1.brayLog, y = NMDS2.brayLog, shape = blank, color = collectionID, size = as.factor(volumeOrWash))
+) +
+    geom_point() +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = c(7, 16)) +
+    scale_size_manual(values = c("0" = 3.5, "5" = 1, "10" = 1.5, "20" = 2, "40" = 2.5, "80" = 3)) +
+    my_gg_theme +
+    labs(
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Bray-Curtis (log+1)"
+    )
+p5
+
+p6 = ggplot(
+    vol.nmds.metadata,
+    aes(x = NMDS1.brayBin, y = NMDS2.brayBin, shape = blank, color = collectionID, size = as.factor(volumeOrWash))
+) +
+    geom_point() +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = c(7, 16)) +
+    scale_size_manual(values = c("0" = 3.5, "5" = 1, "10" = 1.5, "20" = 2, "40" = 2.5, "80" = 3)) +
+    my_gg_theme +
+    labs(
+        x = "NMDS1",
+        y = "NMDS2",
+        title = "Binary Bray-Curtis"
+    )
+p6
+
 #site : date comps
-vol.nmds.metadata.no_blank$mdy = mdy(vol.nmds.metadata.no_blank$date) %>% scales::date_format(.,format = "%m-%d")
+vol.nmds.metadata.no_blank$mdy = mdy(vol.nmds.metadata.no_blank$date) 
+
 
 #labeller function for color scale
+#this can be used if feeding date into scale_x_gradient directly
 Date_F <- function(x){
     month.name[as.numeric(format(as.Date(x, format = "%m-%d-%Y"),"%m"))]
 }
 Date_F(vol.nmds.metadata.no_blank$mdy)
 
-p4 = ggplot(
+#function to convert integer dates back to breaks and date labels
+#use with scale_x_gradient2 if desired to define a midpoint 
+date_breaks <- function(x){
+    #breaks <- c(min(x),median(x),max(x))
+    breaks <- quantile(x, probs = seq(0, 1, 0.25))
+    attr(breaks,"labels") <- month.name[as.numeric(format(as.Date(breaks, origin="1970-01-01"),"%m"))]
+    names(breaks) <- attr(breaks,"labels")
+    return(breaks)
+}
+
+date_breaks(as.integer(vol.nmds.metadata.no_blank$mdy))
+
+#April    May August 
+#19460  19502  19586 
+#mean of min-max is 19523
+
+#April   April     May    June  August 
+#19460.0 19477.5 19502.0 19516.0 19586.0 
+
+five_cols_gradient_palette = c('#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0')
+five_cols_gradient_palette = c('#b2182b','#d6604d','#f4a582','white','#2166ac')
+
+p7 = ggplot(
     vol.nmds.metadata.no_blank,
-    aes(x = NMDS1.bray, y = NMDS2.bray, shape = site, fill = mdy)
+    aes(x = NMDS1.bray, y = NMDS2.bray, shape = site, fill = as.integer(mdy))
 ) +
     geom_point(size = 3.5) +
     scale_shape_manual(values = c(21,22,24)) +
-    scale_fill_gradient(high = "red", low = "blue", labels = Date_F) +
+    #scale_fill_gradient2(high = "#b2182b", low = "#2166ac", mid = "white", midpoint = as.integer(as.Date("2023-06-01")), breaks = date_breaks) +
+    scale_fill_gradientn(colours = rev(five_cols_gradient_palette), breaks = date_breaks) +
+    #scale_fill_gradient(high = "#ca0020", low = "#0571b0", labels = Date_F) +
     my_gg_theme +
     labs(
         fill = "Date",
@@ -191,15 +269,15 @@ p4 = ggplot(
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 16)
     )
-p4
+p7
 
-p5 = ggplot(
+p8 = ggplot(
     vol.nmds.metadata.no_blank,
     aes(x = NMDS1.brayLog, y = NMDS2.brayLog, shape = site, fill = mdy)
 ) +
     geom_point(size = 3.5) +
     scale_shape_manual(values = c(21,22,24)) +
-    scale_fill_gradient(high = "red", low = "blue", labels = Date_F) +
+    scale_fill_gradientn(colours = rev(five_cols_gradient_palette), breaks = date_breaks) +
     my_gg_theme +
     labs(
         fill = "Date",
@@ -212,16 +290,16 @@ p5 = ggplot(
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 16)
     )
-p5
+p8
 
 #site and date
-p6 = ggplot(
+p9 = ggplot(
     vol.nmds.metadata.no_blank,
     aes(x = NMDS1.brayBin, y = NMDS2.brayBin, shape = site, fill = mdy)
 ) +
     geom_point(size = 3.5) +
     scale_shape_manual(values = c(21,22,24)) +
-    scale_fill_gradient(high = "red", low = "blue", labels = Date_F) +
+    scale_fill_gradientn(colours = rev(five_cols_gradient_palette), breaks = date_breaks) +
     my_gg_theme +
     labs(
         fill = "Date",
@@ -234,7 +312,7 @@ p6 = ggplot(
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 16)
     )
-p6
+p9
 
 
 pdf("figures/vol_test/vol_nmds.pdf", width = 8, height = 6)
@@ -244,5 +322,8 @@ p3
 p4
 p5
 p6
+p7
+p8
+p9
 dev.off()
 
