@@ -28,6 +28,9 @@ if(!dir.exists(path.len)) dir.create(path.len)
 itsFs.len <- file.path(path.len, basename(itsFs))
 itsRs.len <- file.path(path.len, basename(itsRs))
 
+############
+#MOVE THE QUAL FILTER TO PRE ITSXPRESS
+
 #filter
 out2 <- filterAndTrim(itsFs, itsFs.len, itsRs, itsRs.len, maxN = 0, maxEE = c(2, 2),
 truncQ = 2, minLen = 10, rm.phix = TRUE, compress = TRUE, multithread = TRUE)  # on windows, set multithread = FALSE

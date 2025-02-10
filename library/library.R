@@ -136,7 +136,47 @@ my_gg_theme = theme(
     legend.text = element_text(size = 15),
     strip.text = element_text(size = 15),
     axis.title.x = element_text(margin = margin(t= 10)),
-    axis.title.y = element_text(margin = margin(r=10))    )
+    axis.title.y = element_text(margin = margin(r=10)),
+    legend.key = element_blank()
+)
+
+my_gg_theme.def_size = theme(
+    panel.background = element_rect(fill='white', colour='black'),
+    panel.grid.major=element_blank(),
+    panel.grid.minor= element_blank(),
+    text=element_text(family="sans"),
+    axis.text=element_text(color="black"),
+    axis.ticks = element_line(color = "black"),
+    plot.title = element_text(hjust=0),
+    #axis.title = element_text(size=17),
+    #legend.title = element_blank(),
+    #legend.text = element_text(size = 19),
+    #strip.text = element_text(size = 15),
+    axis.title.x = element_text(margin = margin(t= 10)),
+    axis.title.y = element_text(margin = margin(r=10)),
+legend.key = element_blank()
+)
+
+
+#function to convert integer dates back to breaks and date labels
+#use with scale_x_gradient2 if it is desired to define a midpoint
+date_breaks <- function(x){
+    #breaks <- c(min(x),median(x),max(x))
+    breaks <- quantile(x, probs = seq(0, 1, 0.25))
+    attr(breaks,"labels") <- month.name[as.numeric(format(as.Date(breaks, origin="1970-01-01"),"%m"))]
+    names(breaks) <- attr(breaks,"labels")
+    return(breaks)
+}
+#April    May August
+#19460  19502  19586
+#mean of min-max is 19523
+
+#April   April     May    June  August
+#19460.0 19477.5 19502.0 19516.0 19586.0
+
+#palette for date breaks
+five_cols_gradient_palette = c('#b2182b','#d6604d','#f4a582','white','#2166ac')
+
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 

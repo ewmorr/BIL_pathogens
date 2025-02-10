@@ -1,6 +1,6 @@
 library(vegan)
 library(dplyr)
-source("R_scripts/library.R")
+source("R_scripts/library/library.R")
 
 #args give the rarefied tables to read and the output path (plus any desired prepend)
 input_args = commandArgs(trailingOnly = T)

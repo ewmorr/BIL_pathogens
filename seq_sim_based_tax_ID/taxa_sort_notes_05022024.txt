@@ -1,0 +1,10 @@
+In most cases, the highest true-positive rates are achieved by the simple top-hit classifiers (see e.g., Table 4). This shows, as might be expected, that the true name of a known rank is usually present in the top hit annotation, and there is no indication that more complicated methods achieve any improvement in this respect by successfully identifying anomalous cases where a taxon is known but has a lower identity than the top hit. This shows that the biggest challenge in algorithm design can be framed as predicting the LCR, or, equivalently, deciding how many ranks of the taxonomy in the top hit should be deleted in the prediction.
+
+Edgar https://peerj.com/articles/4652/#supp-4
+
+GBIF rules
+blast exact -> 100% match or 99% match and unique
+blast ambiguous -> match >= 99% but not unique, i.e., more tha one hit at this level (assign based on top hit or LCA??) (Do all the taxonomic info agree?? OR score all taxa levels (e.g., species == ambiguous but genus == exact??)
+blast close -> 90% >= match < 99 (use LCA here.... probably the hits should be osrted into sim clusters and then the quality be ranked based on sim of the cluster median or max etc)
+blast weak -> match >= 80% & lt 90%
+blast no match (no match)
