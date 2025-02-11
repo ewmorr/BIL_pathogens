@@ -9,4 +9,4 @@ module load anaconda/colsa
 
 conda activate r-4.2
 
-Rscript ~/repo/BIL_pathogens/FEDRR_11062024/avg_dist_and_div.premise.R
+Rscript ~/repo/BIL_pathogens/FEDRR_11062024/rarefactions/avg_dist_and_div.samps.premise.R
