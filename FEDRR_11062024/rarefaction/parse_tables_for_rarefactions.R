@@ -1,7 +1,7 @@
 library(dplyr)
 source("library/library.R")
 
-asv_tab = read.table("~/FEDRR_all_2024/dada2_core/ASVs_counts.tsv", header = T)
+#asv_tab = read.table("~/FEDRR_all_2024/dada2_core/ASVs_counts.tsv", header = T)
 asv_tab = read.table("data/FEDRR_all_2024/ASVs_counts.tsv", header = T)
 ncol(asv_tab)
 nrow(asv_tab)
@@ -11,7 +11,7 @@ rownames(asv_tab)
 colnames(asv_tab) = sub("_S\\d+", "", colnames(asv_tab),perl = T)
 
 
-metadata = read.csv("~/FEDRR_all_2024/collated_metadata_NY-OH-IA_02102025.csv")
+#metadata = read.csv("~/FEDRR_all_2024/collated_metadata_NY-OH-IA_02102025.csv")
 metadata = read.csv("data/2024_metadata/collated/collated_metadata_NY-OH-IA_02102025.csv")
 head(metadata)
 nrow(metadata)
@@ -80,7 +80,7 @@ nrow(asv_tab.pcr)
 asv_tab.samps = asv_tab[,colnames(asv_tab) %in% samples_ids]
 ncol(asv_tab.samps) == length(samples_ids)
 ncol(asv_tab.samps)
-#317
+#306
 samples_ids[!samples_ids  %in% colnames(asv_tab.samps)]
 # four samples with no reads passing QC (reducing to 317 potential samples)
 
