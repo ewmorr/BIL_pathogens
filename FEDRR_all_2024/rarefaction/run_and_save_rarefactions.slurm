@@ -9,4 +9,4 @@ module load anaconda/colsa
 
 conda activate r-4.2
 
-Rscript ~/repo/BIL_pathogens/FEDRR_11062024/rarefaction/run_and_save_rarefactions.premise.R
+Rscript ~/repo/BIL_pathogens/FEDRR_all_2024/rarefaction/run_and_save_rarefactions.premise.R
