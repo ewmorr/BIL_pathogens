@@ -7,26 +7,26 @@ library(gtable)
 source("library/library.R")
 set.seed(12345)
 
-metadata = read.csv("data/2024_metadata/collated/collated_metadata_NY-OH-IA_02102025.csv")
+metadata = read.csv("data/2024_metadata/collated/collated_metadata_NY-OH_11062024.csv")
 head(metadata)
 
 #full rarefied table
 #
-bray_bin.dist = readRDS("data/FEDRR_all_2024/avg_dist/bray-binary.samps.rds")
-bray_log.dist = readRDS("data/FEDRR_all_2024/avg_dist/bray-logCounts.samps.rds")
+bray_bin.dist = readRDS("data/FEDRR_11062024/processed_tables/avg_dist/bray-binary.samps.rds")
+bray_log.dist = readRDS("data/FEDRR_11062024/processed_tables/avg_dist/bray-logCounts.samps.rds")
 
 
 ##################################
 #perform NMDS
 bray_bin.nmds = metaMDS(bray_bin.dist, try = 20, trymax = 100)
-#bray_bin.nmds = metaMDS(bray_bin.dist, trymax = 200, previous.best = bray_bin.nmds)
+#bray_bin.nmds = metaMDS(bray_bin.dist, previous.best = bray_bin.nmds)
 bray_bin.nmds
-#stress = 0.1975341
+#stress = 0.163
 
 bray_log.nmds = metaMDS(bray_log.dist, try = 20, trymax = 100)
 #bray_log.nmds = metaMDS(bray_log.dist, previous.best = bray_log.nmds)
 bray_log.nmds
-#stress = 0.2236489
+#stress = 0.1998
 
 nmds.metadata = left_join(
     data.frame(
@@ -52,7 +52,6 @@ nmds.metadata$Lure %>% unique
 nmds.metadata$trapID %>% unique
 nmds.metadata %>% filter(State == "NY") %>% pull(trapID) %>% unique
 nmds.metadata$BaselineType %>% unique()
-nmds.metadata %>% filter(BaselineType == "BLO")
 
 nmds.metadata$mdy = mdy(nmds.metadata$date)
 
@@ -75,9 +74,9 @@ p1 = ggplot(nmds.metadata,
        aes(x = bray_bin.NMDS1, y = bray_bin.NMDS2, shape = State, fill = as.integer(mdy))
 ) +
     geom_point(size = 3) +
-    scale_shape_manual(values = c(21,24, 22)) +
+    scale_shape_manual(values = c(21,24)) +
     scale_fill_gradientn(colours = rev(five_cols_gradient_palette), breaks = date_breaks) +
-    annotate(geom = "text", label = "stress = 0.198", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
+    annotate(geom = "text", label = "stress = 0.163", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
     guides(shape = guide_legend(order = 1), fill = guide_colorbar(order = 2)) +
     labs(x="NMDS1", y = "NMDS2") +
     my_gg_theme +
@@ -85,10 +84,10 @@ p1 = ggplot(nmds.metadata,
     #annotate(geom = "segment", x = -Inf, xend = -0.275, y = 0.15, yend = 0.15) +
     theme(
         legend.position = "inside",
-        legend.position.inside = c(0.0665, 0.825)
-    ) 
+        legend.position.inside = c(0.075, 0.825)
+    )
 p1
-pdf("figures/FEDRR_all_2024/date.NY-OH-IA.pdf", width = 9, height = 8)
+pdf("figures/FEDRR_11062024/date.NY-OH.pdf", width = 8, height = 7)
 p1
 dev.off()
 
@@ -116,21 +115,9 @@ p8 = ggplot(nmds.metadata %>% filter(State == "OH"),
         legend.title = element_text(size = 16)
     )
 p8
-p9 = ggplot(nmds.metadata %>% filter(State == "IA"), 
-            aes(x = bray_bin.NMDS1, y = bray_bin.NMDS2, color = as.integer(mdy), shape = Site)
-) +
-    scale_shape_manual(values = c(16,17,15,3,7,8,5)) +
-    geom_point(size = 3) +
-    scale_color_gradientn(colours = rev(five_cols_gradient_palette), breaks = date_breaks, guide = guide_colorbar(title = element_blank(), order = 2)) +
-    labs(x="NMDS1", y = "NMDS2", color = "Risk level", title = "Iowa") +
-    my_gg_theme +
-    theme(
-        legend.title = element_text(size = 16)
-    )
-p9
 
-pdf("figures/FEDRR_all_2024/date.NY-OH-IA_facet.pdf", width = 28, height = 6)
-grid.arrange(p9,p7,p8,ncol = 3, widths = c(0.31,0.33,0.35))
+pdf("figures/FEDRR_11062024/date.NY-OH_facet.pdf", width = 19, height = 6)
+grid.arrange(p7,p8,ncol = 2, widths = c(0.48,0.52))
 dev.off()
 
 ####################################################
@@ -142,8 +129,8 @@ p3 = ggplot(nmds.metadata,
             aes(x = bray_bin.NMDS1, y = bray_bin.NMDS2, fill = Risk, shape = State)
 ) +
     geom_point(size = 3) +
-    scale_shape_manual(values = c(21,24, 22)) +
-    annotate(geom = "text", label = "stress = 0.198", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
+    scale_shape_manual(values = c(21,24)) +
+    annotate(geom = "text", label = "stress = 0.163", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
     scale_fill_brewer(palette = "Dark2") +
     guides(
         shape = guide_legend(order = 2, title = NULL), 
@@ -153,12 +140,12 @@ p3 = ggplot(nmds.metadata,
     my_gg_theme +
     theme(
         legend.position = "inside",
-        legend.position.inside = c(0.0665, 0.865),
+        legend.position.inside = c(0.0775, 0.865),
         legend.title = element_text(size = 15), 
         legend.margin = margin(t = -2)
     )
 p3
-pdf("figures/FEDRR_all_2024/risk.NY-OH-IA.pdf", width = 9, height = 8)
+pdf("figures/FEDRR_11062024/risk.NY-OH.pdf", width = 8, height = 7)
 p3
 dev.off()
 
@@ -189,7 +176,7 @@ p6 = ggplot(nmds.metadata %>% filter(State == "OH"),
     )
 p6
 
-pdf("figures/FEDRR_all_2024/risk.NY-OH-IA_facet.pdf", width = 19, height = 6)
+pdf("figures/FEDRR_11062024/risk.NY-OH_facet.pdf", width = 19, height = 6)
 grid.arrange(p5,p6,ncol = 2, widths = c(0.48,0.52))
 dev.off()
 
@@ -206,8 +193,8 @@ p9 = ggplot(nmds.metadata,
             aes(x = bray_bin.NMDS1, y = bray_bin.NMDS2, fill = Lure, shape = State)
 ) +
     geom_point(size = 3) +
-    annotate(geom = "text", label = "stress = 0.198", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
-    scale_shape_manual(values = c(21,24, 22)) +
+    annotate(geom = "text", label = "stress = 0.163", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
+    scale_shape_manual(values = c(21,24)) +
     scale_fill_brewer(palette = "Set2") +
     guides(
         shape = guide_legend(order = 2, title = NULL), 
@@ -217,12 +204,12 @@ p9 = ggplot(nmds.metadata,
     my_gg_theme +
     theme(
         legend.position = "inside",
-        legend.position.inside = c(0.11, 0.865),
+        legend.position.inside = c(0.13, 0.865),
         legend.title = element_text(size = 15), 
         legend.margin = margin(t = -2)
     )
 p9
-pdf("figures/FEDRR_all_2024/lure.NY-OH-IA.pdf", width = 9, height = 8)
+pdf("figures/FEDRR_11062024/lure.NY-OH.pdf", width = 8, height = 7)
 p9
 dev.off()
 
@@ -253,34 +240,7 @@ p11 = ggplot(nmds.metadata %>% filter(State == "OH"),
     )
 p11
 
-pdf("figures/FEDRR_all_2024/lure.NY-OH-IA_facet.pdf", width = 19, height = 6)
+pdf("figures/FEDRR_11062024/lure.NY-OH_facet.pdf", width = 19, height = 6)
 grid.arrange(p10,p11,ncol = 2, widths = c(0.48,0.52))
-dev.off()
-
-
-
-
-p12 = ggplot(nmds.metadata, 
-            aes(x = bray_bin.NMDS1, y = bray_bin.NMDS2, fill = State, shape = State)
-) +
-    geom_point(size = 3) +
-    scale_shape_manual(values = c(21,24, 22)) +
-    annotate(geom = "text", label = "stress = 0.198", x = min(nmds.metadata$bray_bin.NMDS1), y = min(nmds.metadata$bray_bin.NMDS2), hjust = 0, size = 5.5) +
-    scale_fill_manual(values = cbPalette) +
-    #guides(
-    #    shape = guide_legend(order = 2, title = NULL), 
-    #    fill = guide_legend(order = 1, override.aes = list(shape = 21))
-    #) +
-    labs(x="NMDS1", y = "NMDS2") +
-    my_gg_theme +
-    theme(
-        legend.position = "inside",
-        legend.position.inside = c(0.0665, 0.895),
-        legend.title = element_text(size = 15), 
-        legend.margin = margin(t = -2)
-    )
-p12
-pdf("figures/FEDRR_all_2024/state.NY-OH-IA.pdf", width = 9, height = 8)
-p12
 dev.off()
 
