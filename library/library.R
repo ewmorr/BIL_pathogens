@@ -110,15 +110,6 @@ avg_matrix_list = function(x){
 #############################################################################
 
 
-
-twos = matrix(data = 2, nrow = 2, ncol = 2)
-ones = matrix(data = 1, nrow = 2, ncol = 2)
-
-mat_list[[1:100]] = ones
-mat_list[[101:1000]] = twos
-
-system.time(foo <- Reduce('+', mat_list))
-
 #############################################################################
 ############################
 #ggplot2 themes and palettes
