@@ -43,6 +43,10 @@ samps_and_baseline_ids = metadata %>% filter(dateOrBaselineType != "negative" & 
 samps_and_baseline_ids %>% length
 #478
 
+baseline_ids = metadata %>% filter(dateOrBaselineType == "BLO" | dateOrBaselineType == "BLF") %>% pull(SequenceID)
+baseline_ids %>% length
+#66
+
 samps_and_pcrNeg_ids = metadata %>% filter(dateOrBaselineType != "BLO" & dateOrBaselineType != "BLF") %>% pull(SequenceID)
 samps_and_pcrNeg_ids %>% length
 #446
@@ -115,6 +119,31 @@ asv_tab.samps_and_baseline = asv_tab.samps_and_baseline[, colSums(asv_tab.samps_
 asv_tab.samps_and_baseline = asv_tab.samps_and_baseline[rowSums(asv_tab.samps_and_baseline) > 0,] %>% t() 
 ncol(asv_tab.samps_and_baseline)
 nrow(asv_tab.samps_and_baseline)
+
+######################
+#baseline samples  only
+asv_tab.baseline = asv_tab[,colnames(asv_tab) %in% baseline_ids]
+ncol(asv_tab.baseline) == length(baseline_ids)
+baseline_ids[!baseline_ids  %in% colnames(asv_tab.baseline)]
+# five samples with no reads passing QC (reducing to 313 potential samples)
+
+#how many samples with lt 1k seqs
+asv_tab.baseline[,colSums(asv_tab.baseline) > 999] %>% colnames %>% length
+#41 
+colSums(asv_tab.baseline) %>% sort
+
+#
+#how many nonzero asvs
+sum(rowSums(asv_tab.baseline) > 0)
+#4646
+sum(rowSums(asv_tab.baseline) > 1)
+#4305
+#
+#remove 0 count asvs and samples with lt 500 seqs and transpose. Note we will also output the un filtered/unrarefied samples for purposes of *detection*
+asv_tab.baseline = asv_tab.baseline[, colSums(asv_tab.baseline) > 499]
+asv_tab.baseline = asv_tab.baseline[rowSums(asv_tab.baseline) > 0,] %>% t() 
+ncol(asv_tab.baseline)
+nrow(asv_tab.baseline)
 
 ######################
 #trap catch AND PCR negatives 
@@ -263,6 +292,7 @@ max(rowSums(asv_tab.samps.NH))/min(rowSums(asv_tab.samps.NH))
 write.csv(asv_tab.samps, "data/FEDRR_all_2024/asv_tab.samps.csv", quote = F)
 write.csv(asv_tab.samps_and_baseline, "data/FEDRR_all_2024/asv_tab.samps_and_baseline.csv", quote = F)
 write.csv(asv_tab.samps_and_pcrNeg, "data/FEDRR_all_2024/asv_tab.samps_and_pcrNeg.csv", quote = F)
+write.csv(asv_tab.baseline, "data/FEDRR_all_2024/asv_tab.baseline.csv", quote = F)
 write.csv(asv_tab.samps_and_baseline.NH, "data/FEDRR_all_2024/asv_tab.samps_and_baseline.NH.csv", quote = F)
 write.csv(asv_tab.baseline.NH, "data/FEDRR_all_2024/asv_tab.baseline.NH.csv", quote = F)
 write.csv(asv_tab.samps.NH, "data/FEDRR_all_2024/asv_tab.samps.NH.csv", quote = F)

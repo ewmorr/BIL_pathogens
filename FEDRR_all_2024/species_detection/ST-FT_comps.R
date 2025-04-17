@@ -1,0 +1,235 @@
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(lubridate)
+source("library/library.R")
+
+asv_tab = read.csv("data/FEDRR_all_2024/asv_tab.funnel_traps_and_spore_traps.csv", row.names = 1)
+row.names(asv_tab)
+asvs_tax = read.table("data/FEDRR_all_2024/ASVs_taxonomy.tsv", header = T)
+tax_bs = read.table("data/FEDRR_all_2024/ASVs_taxonomy_bootstrapVals.tsv", header = T)
+head(tax_bs < 90)
+asvs_tax[tax_bs < 80] = NA
+
+metadata = read.csv("data/2024_metadata/spore_insect_trap_metadata.date_matches.csv")
+metadata$SequenceID
+
+metadata$SequenceID[grep("^[[:digit:]].*", metadata$SequenceID)] = paste0("X", metadata$SequenceID[grep("^[[:digit:]].*", metadata$SequenceID)])
+metadata$SequenceID
+
+nrow(asv_tab)
+ncol(asv_tab)
+
+# filter to samples
+asv_tab.date = asv_tab[metadata$SequenceID,]
+row.names(asv_tab.date) == metadata$SequenceID
+
+#filter out zero count asvs
+asv_tab.date = asv_tab.date[, colSums(asv_tab.date) > 0]
+nrow(asv_tab.date)
+ncol(asv_tab.date)
+
+class(asv_tab.date)
+asv_tab.t = t(asv_tab.date) %>% data.frame
+class(asv_tab.t)
+asv_tab.t$ASV = rownames(asv_tab.t)
+head(asv_tab.t)
+
+##############
+##############
+head(metadata)
+metadata$mdy = mdy(metadata$dateOrBaselineType)
+
+metadata$Lure %>% unique()
+metadata[is.na(metadata$Lure),"Lure"] = "Spore_trap"
+metadata$Lure %>% unique()
+
+# start spp search
+sp_search_terms = read.table("data/2024_metadata/NY_spp_concern_search_terms.txt", header = F)
+
+asvs_gen_sp_search = data.frame(
+    ASV = rownames(asvs_tax),
+    Genus = sub("g__", "", asvs_tax$Genus),
+    Species = sub("s__", "", asvs_tax$Species),
+    stringsAsFactors = F
+)
+
+
+# formatting up search terms
+
+test_split = function(x){
+    if(grepl("_", x)){
+        return( str_split_i(x, "_", 1) )
+    } else {
+        return(x)
+    }
+}
+        
+ny_gen_search = sapply(sp_search_terms$V1, test_split) %>% unname
+
+ny_sp_search = mapply(\(x, y) sub(x, "", y), ny_gen_search, sp_search_terms$V1) %>% sub("^_", "", .) %>% unname 
+ny_sp_search[ny_sp_search == ""] = NA
+
+ny_search_terms = data.frame(
+    Genus = ny_gen_search,
+    Species = ny_sp_search,
+    stringsAsFactors = F
+)
+#
+#
+
+#########################
+# setting up search tables
+# wel will have one for genus
+# and one for species
+# and mark >0 samples as yes
+# 
+
+asv_tab.samps.tax = left_join(asv_tab.t, asvs_gen_sp_search, by = "ASV")
+head(asv_tab.samps.tax)
+
+
+asv_tab.samps.gen = asv_tab.samps.tax %>% 
+    filter(Genus %in% ny_search_terms$Genus) %>% 
+    group_by(Genus) %>% 
+    summarize(across(where(is.numeric), sum) )
+asv_tab.samps.spp = asv_tab.samps.tax %>% 
+    filter(Genus %in% ny_search_terms$Genus & Species %in% ny_search_terms$Species & !is.na(Species)) %>% 
+    group_by(Genus, Species) %>% 
+    summarize(across(where(is.numeric), sum) )
+
+
+asv_tab.samps.gen.char = asv_tab.samps.gen %>%
+    mutate(across(where(is.numeric), .fns = ~ifelse(. > 0, "genus", "absent"))) %>%
+    data.frame()
+
+asv_tab.samps.spp.char = asv_tab.samps.spp %>%
+    mutate(across(where(is.numeric), .fns = ~ifelse(. > 0, "species", "absent"))) %>%
+    data.frame()
+
+#join with the genus character indicators first
+ny_search_terms.samps = left_join(
+    ny_search_terms,
+    asv_tab.samps.gen.char,
+    by = "Genus"
+) %>% data.frame
+
+#then test for where we found a species and change the value where applicable
+for(i in 1:nrow(asv_tab.samps.spp.char) ){
+    for(j in 3:ncol(asv_tab.samps.spp.char) ){
+        if(asv_tab.samps.spp.char[i,j] == "species"){
+            ny_search_terms.samps[ny_search_terms.samps$Genus == asv_tab.samps.spp.char[i,1] & ny_search_terms.samps$Species == asv_tab.samps.spp.char[i,2], j] = "species"
+        }
+    }
+}
+sum(ny_search_terms.samps == "species", na.rm = T)
+#163
+sum(ny_search_terms.samps == "genus", na.rm = T)
+#565
+
+#replace NAs with absent
+ny_search_terms.samps.rp_na = ny_search_terms.samps %>%
+    mutate(across(c(3:ncol(ny_search_terms.samps)), ~replace_na(., "absent")) ) %>%
+    data.frame()
+sum(ny_search_terms.samps.rp_na == "species", na.rm = T)
+sum(ny_search_terms.samps.rp_na == "genus", na.rm = T)
+
+
+##################
+# add sample period to metadata
+metadata %>% head()
+metadata %>%
+    select(Site, mdy) %>%
+    unique() %>%
+    filter(!is.na(mdy)) %>%
+    arrange(Site, mdy) %>%
+    group_by(Site) -> site_date_df
+site_date_df$samplePeriod = vector(mode = "numeric", length = nrow(site_date_df))
+
+sites_uniq = site_date_df$Site %>% unique()
+
+for(i in 1:length(sites_uniq)){
+    n_dates = nrow(site_date_df[site_date_df$Site == sites_uniq[i],])
+    site_date_df[site_date_df$Site == sites_uniq[i],"samplePeriod"] = 1:n_dates
+}
+metadata.period = left_join(metadata, site_date_df)
+
+
+# join to 
+ny_search_terms.long = left_join(
+    ny_search_terms.samps.rp_na %>% 
+        pivot_longer(cols = c(-Genus, -Species), names_to = "SequenceID", values_to = "gen_sp"),
+    metadata.period %>% 
+        select(SequenceID, State, Site, Risk, mdy, Lure, samplePeriod),
+    by = "SequenceID"
+) 
+ny_search_terms.long$spec_name = paste(ny_search_terms.long$Genus, ny_search_terms.long$Species)
+ny_search_terms.long$spec_name = sub(" NA", "", ny_search_terms.long$spec_name)
+ny_search_terms.long$spec_name = sub("_", " ", ny_search_terms.long$spec_name)
+ny_search_terms.long$spec_name = sub("-occidentalis", "", ny_search_terms.long$spec_name)
+
+ny_search_terms.long %>% head()
+
+unique(ny_search_terms.long$samplePeriod)
+
+p1 = ggplot(ny_search_terms.long %>% filter(State == "NH"), 
+    aes(
+        #x = factor(samplePeriod, levels = c(1,2,3,4)), 
+        x = sub("2025-0", "", as.factor(mdy)),
+        y = Lure, 
+        fill = factor(gen_sp, levels = c("species", "genus", "absent")) 
+    )
+) +
+    geom_tile() + 
+    scale_fill_manual(
+        values = c("red", "yellow", "grey"), 
+        labels = c("species present", "genus present", "not detected")
+    ) +
+    labs(fill = "Presence/absence:", x = "Sample period") +
+    facet_grid(Site~spec_name, scales = "free_x", labeller = label_wrap_gen(12) ) +
+    my_gg_theme +
+    theme(
+        axis.text.x = element_text(angle = 55, hjust = 1),
+        axis.title.y = element_blank(),
+        legend.title = element_text(size = 15),
+        legend.position= "bottom"
+    )
+p1
+
+
+pdf("figures/FEDRR_all_2024/NH_ST_v_FT_spp_concern.pdf", width = 34, height = 4.5)
+p1
+dev.off()
+
+
+p2 = ggplot(ny_search_terms.long %>% filter(State == "OH"), 
+    aes(
+        x = factor(samplePeriod, levels = c(1)), 
+        #x = sub("2025-0", "", as.factor(mdy)),
+        y = Lure, 
+        fill = factor(gen_sp, levels = c("species", "genus", "absent")) 
+    )
+) +
+    geom_tile() + 
+    scale_fill_manual(
+        values = c("red", "yellow", "grey"), 
+        labels = c("species present", "genus present", "not detected")
+    ) +
+    labs(fill = "Presence/absence:", x = "Sample period") +
+    facet_grid(Site~spec_name, scales = "free_x", labeller = label_wrap_gen(12) ) +
+    my_gg_theme +
+    theme(
+        #axis.text.x = element_text(angle = 55, hjust = 1),
+        axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_text(size = 15),
+        legend.position= "bottom"
+    )
+p2
+
+pdf("figures/FEDRR_all_2024/OH_ST_v_FT_spp_concern.pdf", width = 33, height = 11)
+p2
+dev.off()
+

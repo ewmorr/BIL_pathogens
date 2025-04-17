@@ -5,12 +5,20 @@ library(ggVennDiagram)
 source("library/library.R")
 
 
-metadata = read.csv("data/2024_metadata/collated/collated_metadata_NY-OH_11062024.csv")
+metadata = read.csv("data/2024_metadata/collated/collated_metadata_NY-OH-IA-NH_02102025.csv")
 head(metadata)
+metadata$BaselineType = metadata$dateOrBaselineType
+metadata$BaselineType[grep("^[0-9].*", metadata$BaselineType)] = "sample"
 
-asv_tab.bl = read.csv("data/FEDRR_11062024/processed_tables/asv_tab.baseline.csv", row.names = 1)
+metadata$date = paste0(metadata$dateOrBaselineType, "-2024")
+metadata$date[grep("^BL.", metadata$date)] = NA
+#metadata$mdy = mdy(metadata$date)
+
+
+
+asv_tab.bl = read.csv("data/FEDRR_all_2024/asv_tab.baseline.csv", row.names = 1)
 asv_tab.bl$SequenceID = rownames(asv_tab.bl)
-asv_tab.samps = read.csv("data/FEDRR_11062024/processed_tables/asv_tab.samps.csv", row.names = 1)
+asv_tab.samps = read.csv("data/FEDRR_all_2024/asv_tab.samps.csv", row.names = 1)
 asv_tab.samps$SequenceID = rownames(asv_tab.samps)
 
 #we can just join to trapID and then make a vec of the ASVs that are present
@@ -66,9 +74,9 @@ p1 = ggVennDiagram(sample_list[[1]], label_alpha = 0.85, label_size = 6) +
 p1
 
 
-pdf("figures/FEDRR_11062024/test_baseline_Venn.pdf", width = 5, height = 5)
-print(p1)
-dev.off()
+#pdf("figures/FEDRR_all_2024/test_baseline_Venn.pdf", width = 5, height = 5)
+#print(p1)
+#dev.off()
 
 
 # save plots list
@@ -90,7 +98,7 @@ for(i in 1:length(all_traps)) {
         )
 }
 
-pdf("figures/FEDRR_11062024/baseline_Venns.NY-OH.pdf", width = 5, height = 5)
+pdf("figures/FEDRR_all_2024/baseline_Venns.NY-OH-IA-NH.pdf", width = 5, height = 5)
 lapply(plot_list, print)
 dev.off()
 
@@ -128,7 +136,7 @@ p1 = ggVennDiagram(
             aspect.ratio = 1.35
         )
 
-pdf("figures/FEDRR_11062024/baseline_all_samples_Venn.NY-OH.pdf", width = 5, height = 5)
+pdf("figures/FEDRR_all_2024/baseline_all_samples_Venn.NY-OH-IA-NH.pdf", width = 5, height = 5)
 p1
 dev.off()
 
@@ -144,28 +152,28 @@ for(i in 1:length(all_traps)) {
     shared_list[[ all_traps[i] ]] = sample_list[[ all_traps[i] ]][["baseline"]][temp_shared]
 }
 unlist(shared_list, use.names = F) %>% length
-#2896
+#3880
 unlist(shared_list, use.names = F) %>% unique %>% length
-#1266
+#1664
 shared_asvs = unlist(shared_list, use.names = F) %>% unique
 
 head(asv_tab.bl)
 ######################
 #reloading to refresh
-asv_tab.bl = read.csv("data/FEDRR_11062024/processed_tables/asv_tab.baseline.csv", row.names = 1)
+asv_tab.bl = read.csv("data/FEDRR_all_2024/asv_tab.baseline.csv", row.names = 1)
 asv_tab.bl.t = t(asv_tab.bl)
 asv_tab.bl.t.shared = asv_tab.bl.t[rownames(asv_tab.bl.t) %in% shared_asvs,]
 nrow(asv_tab.bl.t.shared)
 nrow(asv_tab.bl.t) - nrow(asv_tab.bl.t.shared)
-#dropped 2217 ASVs
+#dropped 2898 ASVs
 nrow(asv_tab.bl.t[rowSums(asv_tab.bl.t) > 0,])
 nrow(asv_tab.bl.t)
 #all ASVs > 0 seqs
 
 ######################
 #loading taxonomic data
-asv_tax = read.table("data/FEDRR_11062024/ASVs_taxonomy.tsv", header = T)
-tax_bs = read.table("data/FEDRR_11062024/ASVs_taxonomy_bootstrapVals.tsv", header = T)
+asv_tax = read.table("data/FEDRR_all_2024/ASVs_taxonomy.tsv", header = T)
+tax_bs = read.table("data/FEDRR_all_2024/ASVs_taxonomy_bootstrapVals.tsv", header = T)
 asv_tax[tax_bs < 80] = NA
 asv_tax.shared = asv_tax[rownames(asv_tax) %in% shared_asvs,]
 nrow(asv_tax.shared)
@@ -197,14 +205,19 @@ asv_tab_tax.RA = cbind(
         FUN = function(x) x/seqs_per_sample
     ) %>% t
 )
+colSums(asv_tab_tax.RA %>% select(where(function(x) is.numeric(x) == T)))
 
 asv_tab_tax.order = asv_tab_tax.RA %>% 
     #filter(!is.na(Class)) %>%
     group_by(Class) %>%
     summarize(across(where(is.numeric), sum) ) %>%
     pivot_longer(cols = -Class, names_to = "SequenceID", values_to = "rel_abd") %>%
-    left_join(., metadata %>% select(SequenceID, State, trapID))
+    left_join(., metadata %>% select(SequenceID, State, trapID, BaselineType))
 
+asv_tab_tax.order %>%
+    group_by(trapID, BaselineType) %>%
+    summarize(sum(rel_abd)) %>%
+    print(n = Inf)
 # parsing most abundant taxa through dif ranks
 
 #classes
@@ -214,11 +227,11 @@ p1 = ggplot(
         group_by(Class) %>%
         summarize(across(where(is.numeric), sum) ) %>%
         pivot_longer(cols = -Class, names_to = "SequenceID", values_to = "rel_abd") %>%
-        left_join(., metadata %>% select(SequenceID, State, trapID)), 
-    aes(x = trapID, y = rel_abd*100, fill = Class)
+        left_join(., metadata %>% select(SequenceID, State, trapID, BaselineType)), 
+    aes(x = paste(trapID, BaselineType), y = rel_abd*100, fill = Class)
 ) +
     geom_col() +
-    scale_fill_manual(values = c(c25, "white")) +
+    #scale_fill_manual(values = c(c25, "white", "grey", "black")) +
     labs(x = "Trap", y = "Relative abundance (%)", title = "Classes") +
     guides(fill=guide_legend(ncol=1)) +
     my_gg_theme +
@@ -361,7 +374,7 @@ p7 = ggplot(
 
 
 
-pdf("figures/FEDRR_11062024/baseline_taxa.NY-OH.pdf", width = 14, height = 8)
+pdf("figures/FEDRR_all_2024/baseline_taxa.NY-OH.pdf", width = 14, height = 8)
 p1
 p2
 p3
