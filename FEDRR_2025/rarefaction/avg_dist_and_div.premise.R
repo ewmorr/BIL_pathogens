@@ -6,7 +6,7 @@ source("~/repo/BIL_pathogens/library/library.R")
 ############################################
 ############################################
 # samps
-rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps.rds")
+rarefactions_list = readRDS("~/FEDRR_project/FEDRR_2025_11182025/rarefactions/rarefactions.samps.rds")
 
 #calc distance and alpha-div
 ## take avg
@@ -16,7 +16,7 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps.rd
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps.rds")
+saveRDS(bray_binary_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-binary.samps.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -24,7 +24,7 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps.rds")
+saveRDS(bray_logCts_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-logCounts.samps.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -43,7 +43,7 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps.csv", row.names = F)
+write.csv(div_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/diversity.samps.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -57,7 +57,7 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps.csv")
+write.csv(avg_counts, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/asv_tab.rarefaction_avg.samps.csv")
 
 rm(avg_counts)
 gc()
@@ -68,7 +68,7 @@ gc()
 ############################################
 ############################################
 # samps_and_baseline
-rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps_and_baseline.rds")
+rarefactions_list = readRDS("~/FEDRR_project/FEDRR_2025_11182025/rarefactions/rarefactions.samps_and_baseline.rds")
 
 #calc distance and alpha-div
 ## take avg
@@ -78,7 +78,7 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps_an
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps_and_baseline.rds")
+saveRDS(bray_binary_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-binary.samps_and_baseline.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -86,7 +86,7 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps_and_baseline.rds")
+saveRDS(bray_logCts_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-logCounts.samps_and_baseline.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -105,7 +105,7 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps_and_baseline.csv", row.names = F)
+write.csv(div_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/diversity.samps_and_baseline.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -119,7 +119,7 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps_and_baseline.csv")
+write.csv(avg_counts, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/asv_tab.rarefaction_avg.samps_and_baseline.csv")
 
 rm(avg_counts)
 gc()
@@ -130,7 +130,7 @@ gc()
 ############################################
 ############################################
 # samps_and_pcrNeg
-rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps_and_pcrNeg.rds")
+rarefactions_list = readRDS("~/FEDRR_project/FEDRR_2025_11182025/rarefactions/rarefactions.samps_and_pcrNeg.rds")
 
 #calc distance and alpha-div
 ## take avg
@@ -140,7 +140,7 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps_an
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps_and_pcrNeg.rds")
+saveRDS(bray_binary_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-binary.samps_and_pcrNeg.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -148,7 +148,7 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps_and_pcrNeg.rds")
+saveRDS(bray_logCts_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-logCounts.samps_and_pcrNeg.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -167,7 +167,7 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps_and_pcrNeg.csv", row.names = F)
+write.csv(div_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/diversity.samps_and_pcrNeg.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -181,7 +181,7 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps_and_pcrNeg.csv")
+write.csv(avg_counts, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/asv_tab.rarefaction_avg.samps_and_pcrNeg.csv")
 
 rm(avg_counts)
 gc()
@@ -192,7 +192,7 @@ gc()
 ############################################
 ############################################
 # samps_and_baseline.NH
-rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps_and_baseline.NH.rds")
+rarefactions_list = readRDS("~/FEDRR_project/FEDRR_2025_11182025/rarefactions/rarefactions.samps_and_baseline.NH.rds")
 
 #calc distance and alpha-div
 ## take avg
@@ -202,7 +202,7 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps_an
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps_and_baseline.NH.rds")
+saveRDS(bray_binary_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-binary.samps_and_baseline.NH.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -210,7 +210,7 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps_and_baseline.NH.rds")
+saveRDS(bray_logCts_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-logCounts.samps_and_baseline.NH.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -229,7 +229,7 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps_and_baseline.NH.csv", row.names = F)
+write.csv(div_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/diversity.samps_and_baseline.NH.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -243,7 +243,7 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps_and_baseline.NH.csv")
+write.csv(avg_counts, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/asv_tab.rarefaction_avg.samps_and_baseline.NH.csv")
 
 rm(avg_counts)
 gc()
@@ -254,7 +254,7 @@ gc()
 ############################################
 ############################################
 # baseline.NH
-rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.baseline.NH.rds")
+rarefactions_list = readRDS("~/FEDRR_project/FEDRR_2025_11182025/rarefactions/rarefactions.baseline.NH.rds")
 
 #calc distance and alpha-div
 ## take avg
@@ -264,7 +264,7 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.baseline
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.baseline.NH.rds")
+saveRDS(bray_binary_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-binary.baseline.NH.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -272,7 +272,7 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.baseline.NH.rds")
+saveRDS(bray_logCts_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-logCounts.baseline.NH.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -291,7 +291,7 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.baseline.NH.csv", row.names = F)
+write.csv(div_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/diversity.baseline.NH.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -305,7 +305,7 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.baseline.NH.csv")
+write.csv(avg_counts, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/asv_tab.rarefaction_avg.baseline.NH.csv")
 
 rm(avg_counts)
 gc()
@@ -315,8 +315,8 @@ gc()
 
 ############################################
 ############################################
-# samps.NH
-rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps.NH.rds")
+# baseline
+rarefactions_list = readRDS("~/FEDRR_project/FEDRR_2025_11182025/rarefactions/rarefactions.baseline.rds")
 
 #calc distance and alpha-div
 ## take avg
@@ -326,7 +326,7 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps.NH
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps.NH.rds")
+saveRDS(bray_binary_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-binary.baseline.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -334,7 +334,7 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps.NH.rds")
+saveRDS(bray_logCts_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/bray-logCounts.baseline.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -353,7 +353,7 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps.NH.csv", row.names = F)
+write.csv(div_avg, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/diversity.baseline.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -367,7 +367,7 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps.NH.csv")
+write.csv(avg_counts, "~/FEDRR_project/FEDRR_2025_11182025/rarefactions/asv_tab.rarefaction_avg.baseline.csv")
 
 rm(avg_counts)
 gc()

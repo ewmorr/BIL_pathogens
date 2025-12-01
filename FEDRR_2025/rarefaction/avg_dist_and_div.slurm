@@ -10,4 +10,4 @@ module load anaconda/colsa
 
 conda activate r-4.2
 
-Rscript ~/repo/BIL_pathogens/FEDRR_all_2024/rarefaction/avg_dist_and_div.premise.R
+Rscript ~/repo/BIL_pathogens/FEDRR_2025/rarefaction/avg_dist_and_div.premise.R
