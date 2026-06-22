@@ -29,21 +29,27 @@ def find_fastq_files(directory: Path) -> List[Path]:
     return sorted(files)
 
 
-def extract_sample_id(filename: str) -> str:
-    """Extract the sample ID as the string before the first underscore."""
+def extract_sample_id(filename: str, id_fields: int = 1) -> str:
+    """Extract the sample ID as the first id_fields underscore-delimited fields."""
     stem = filename
     # Strip known FASTQ extensions
     for ext in (".fastq.gz", ".fq.gz", ".fastq", ".fq"):
         if stem.endswith(ext):
             stem = stem[: -len(ext)]
             break
-    sample_id = stem.split("_")[0]
+    parts = stem.split("_")
+    if id_fields > len(parts):
+        raise ValueError(
+            f"Filename '{filename}' has only {len(parts)} underscore-delimited "
+            f"field(s), but --id_fields {id_fields} was requested."
+        )
+    sample_id = "_".join(parts[:id_fields])
     if not sample_id:
         raise ValueError(f"Could not extract sample ID from filename: {filename}")
     return sample_id
 
 
-def pair_files(files: List[Path]) -> List[Tuple[str, Path, Path]]:
+def pair_files(files: List[Path], id_fields: int = 1) -> List[Tuple[str, Path, Path]]:
     """
     Pair R1 and R2 files. Returns a list of (sampleID, r1_path, r2_path) tuples.
     Matching is done by replacing 'R1' with 'R2' in the forward read filename.
@@ -62,7 +68,7 @@ def pair_files(files: List[Path]) -> List[Tuple[str, Path, Path]]:
             r2_name = re.sub(r"R1$", "R2", r1.stem) + "".join(r1.suffixes)
 
         if r2_name in r2_files:
-            sample_id = extract_sample_id(r1.name)
+            sample_id = extract_sample_id(r1.name, id_fields)
             pairs.append((sample_id, r1, r2_files[r2_name]))
         else:
             unmatched.append(r1.name)
@@ -134,6 +140,19 @@ def main():
         action="store_true",
         help="Use absolute paths in the samplesheet (default: paths relative to CWD).",
     )
+    parser.add_argument(
+        "--id_fields",
+        "-n",
+        type=int,
+        default=1,
+        metavar="N",
+        help=(
+            "Number of underscore-delimited fields to use as the sample ID "
+            "(default: 1, i.e. everything before the first underscore). "
+            "For example, --id_fields 2 would turn "
+            "'SAMPLE_REP1_S1_R1_001.fastq.gz' into 'SAMPLE_REP1'."
+        ),
+    )
     args = parser.parse_args()
 
     if not args.fastq_dir.is_dir():
@@ -147,7 +166,11 @@ def main():
 
     print(f"Found {len(files)} FASTQ file(s) in '{args.fastq_dir}'.")
 
-    pairs = pair_files(files)
+    try:
+        pairs = pair_files(files, args.id_fields)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
     if not pairs:
         print("ERROR: No R1/R2 pairs could be matched.", file=sys.stderr)
         sys.exit(1)
