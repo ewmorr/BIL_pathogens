@@ -17,9 +17,10 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import List, Tuple
 
 
-def find_fastq_files(directory: Path) -> list[Path]:
+def find_fastq_files(directory: Path) -> List[Path]:
     """Recursively find all gzipped FASTQ files in the given directory."""
     patterns = ["*.fastq.gz", "*.fq.gz", "*.fastq", "*.fq"]
     files = []
@@ -42,7 +43,7 @@ def extract_sample_id(filename: str) -> str:
     return sample_id
 
 
-def pair_files(files: list[Path]) -> list[tuple[str, Path, Path]]:
+def pair_files(files: List[Path]) -> List[Tuple[str, Path, Path]]:
     """
     Pair R1 and R2 files. Returns a list of (sampleID, r1_path, r2_path) tuples.
     Matching is done by replacing 'R1' with 'R2' in the forward read filename.
@@ -88,7 +89,7 @@ def pair_files(files: list[Path]) -> list[tuple[str, Path, Path]]:
 
 
 def write_samplesheet(
-    pairs: list[tuple[str, Path, Path]],
+    pairs: List[Tuple[str, Path, Path]],
     output_path: Path,
     use_absolute: bool,
     fastq_dir: Path,
