@@ -38,10 +38,11 @@ REV_primer=AACTTTYRRCAAYGGATCWCT
 
 nextflow run "$WORKFLOW_DIR" \
     -profile singularity \
-    --input_folder "/mnt/gpfs01/home/garnas/ewj4/test_dir2/reads" \
+    --input "/mnt/gpfs01/home/garnas/ewj4/FEDRR_project/FEDRR_2025_all_samples_ampliseq.tsv" \
     --FW_primer "$FWD_primer" \
     --RV_primer "$REV_primer" \
-    --outdir "/mnt/gpfs01/home/garnas/ewj4/test_dir2" \
+    --outdir "/mnt/gpfs01/home/garnas/ewj4/FEDRR_project/FEDRR_2025_ampliseq_out" \
+    --multiple_sequencing_runs \
     --ignore_empty_input_files \
     --illumina_pe_its \
     --dada_ref_tax_custom "/mnt/gpfs01/home/garnas/ewj4/blast_dbs/unite_07252023/sh_general_allEuk_dynamic_singletons_25072023.ITS2.SPP_OF_CONCERN_CORRECTIONS.fasta" \
