@@ -26,6 +26,12 @@ head(metadata)
 nrow(metadata)
 #512
 
+
+###########################################
+# NH sample IDs for insect trap comparison
+
+nh_insect_samps = read.table("data/2024_insect_data/sampleIDs.txt", header = F)
+
 ################################################
 ################################################
 # we pull sample IDs based on the planned comparisons
@@ -61,9 +67,11 @@ baseline_ids.NH %>% length
 baseline_ids.NH
 
 #sample type IDs
-samples_ids.NH = metadata %>% filter(dateOrBaselineType != "BLO" & dateOrBaselineType != "BLF" & dateOrBaselineType != "negative" & State == "NH") %>% pull(SequenceID) 
+sub("\\.\\.", " ", nh_insect_samps$V1) %>% gsub("\\.", "-", .) -> nh_insect_samps
+
+samples_ids.NH = metadata %>% filter(sampleID %in% nh_insect_samps) %>% pull(SequenceID) 
 samples_ids.NH %>% length
-#101
+#70
 
 
 ######################
@@ -239,20 +247,21 @@ samples_ids.NH[!samples_ids.NH  %in% colnames(asv_tab.samps.NH)]
 
 #how many samples with lt 1k seqs
 asv_tab.samps.NH[,colSums(asv_tab.samps.NH) > 999] %>% colnames %>% length
-#100 
+#69 
 colSums(asv_tab.samps.NH) %>% sort
 asv_tab.samps.NH[,colSums(asv_tab.samps.NH) > 499] %>% colnames %>% length
-#100
+#69
 
 #
 #how many nonzero asvs
 sum(rowSums(asv_tab.samps.NH) > 0)
-#17966
+#17139
 sum(rowSums(asv_tab.samps.NH) > 1)
-#16463
+#15642
 #
+sort(colSums(asv_tab.samps.NH))
 #remove 0 count asvs and samples with lt 1k seqs and transpose. Note we will also output the un filtered/unrarefied samples for purposes of *detection*
-asv_tab.samps.NH = asv_tab.samps.NH[, colSums(asv_tab.samps.NH) > 499]
+asv_tab.samps.NH = asv_tab.samps.NH[, colSums(asv_tab.samps.NH) > 999]
 asv_tab.samps.NH = asv_tab.samps.NH[rowSums(asv_tab.samps.NH) > 0,] %>% t() 
 ncol(asv_tab.samps.NH)
 nrow(asv_tab.samps.NH)
@@ -280,7 +289,7 @@ max(rowSums(asv_tab.samps_and_baseline.NH))/min(rowSums(asv_tab.samps_and_baseli
 max(rowSums(asv_tab.baseline.NH))/min(rowSums(asv_tab.baseline.NH))
 #236.9521
 max(rowSums(asv_tab.samps.NH))/min(rowSums(asv_tab.samps.NH))
-#917
+#165
 
 #1000 rarefactions should be OK to get a representative sample, but the baseline and samps ratios are around 2-3k...
 #will definitely want to work with the unfiltered tables for purposes of *detection*

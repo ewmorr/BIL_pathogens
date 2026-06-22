@@ -168,10 +168,16 @@ min_seqs.samps_and_baseline = min(rowSums(asv_tab.samps_and_baseline))
 rarefactions_list.samps_and_baseline = multiple_subsamples(x = asv_tab.samps_and_baseline, depth = min_seqs.samps_and_baseline, iterations = 1000) 
 saveRDS(rarefactions_list.samps_and_baseline, "data/FEDRR_11062024/processed_tables/rarefactions.samps_and_baseline.rds")
 
+
 write.csv(asv_tab.baseline, "data/FEDRR_11062024/processed_tables/asv_tab.baseline.csv", quote = F)
 write.csv(asv_tab.pcr, "data/FEDRR_11062024/processed_tables/asv_tab.pcr.csv", quote = F)
 write.csv(asv_tab.samps, "data/FEDRR_11062024/processed_tables/asv_tab.samps.csv", quote = F)
 
+
+######### NH insect samples
+min_seqs.samps.NH = min(rowSums(asv_tab.samps.NH))
+rarefactions_list.samps.NH = multiple_subsamples(x = asv_tab.samps.NH, depth = min_seqs.samps.NH, iterations = 1000)
+saveRDS(rarefactions_list.samps.NH, "data/FEDRR_all_2024/rarefactions.samps.NH.rds")
 
 
 ########################

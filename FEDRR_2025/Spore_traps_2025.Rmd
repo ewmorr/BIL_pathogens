@@ -1,0 +1,146 @@
+---
+title: "Spore_traps_emp"
+author: "Eli"
+date: "2025-04-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(phyloseq)
+library(shadowtext)
+library(ggtree)
+library(ggtreeExtra)
+library(treeio)
+library(tidytree)
+library(MicrobiotaProcess)
+library(forcats)
+library(ggstar)
+library(patchwork)
+library(dplyr)
+library(pals)
+library(ggtext)
+library(stringr)
+library(reshape2)
+
+#setwd('/users/PAS0247/torres704/Spore_traps_project/2025/Data_analysis/')
+```
+
+## Loading the output files from dada2
+
+```{r, files, warning=FALSE}
+#Loading files
+otus <- as.matrix(read.csv("/users/PAS0247/torres704/Spore_traps_project/2025/Data_analysis/ASVs_counts.csv", row.names = 1))
+tax <- as.matrix(read.csv("/users/PAS0247/torres704/Spore_traps_project/2025/Data_analysis/ASVs_taxonomy.csv", row.names = 1))
+sam <- as.data.frame(read.csv("/users/PAS0247/torres704/Spore_traps_project/2025/Data_analysis/Metadata_2025.csv", row.names = 1))
+
+```
+
+## Generating phyloseq objects from dada2 results
+```{r,phyloseq}
+OTU = otu_table(otus, taxa_are_rows = TRUE)
+TAX = phyloseq::tax_table(tax)
+SAM = sample_data(sam)
+st_physeq = phyloseq(OTU, TAX,SAM)
+st_physeq
+```
+
+## Converting phyloseq object to mpse
+```{r, mpse}
+mpse2 <- st_physeq %>% as.MPSE()
+mpse2
+
+
+# Filter features without annotation in Phylum or Domain
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Kingdom) %>% unique()
+mpse2 <- mpse2 %>% dplyr::filter(!Kingdom %in% c("k__Unknown", "k__Viridiplantae","k__Rhizaria", "k__Metazoa", "k__Stramenopila"))
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Kingdom) %>% unique()
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Phylum) %>% unique()
+mpse2 <- mpse2 %>% dplyr::filter(!Phylum %in% c("p__un_k__Fungi"))
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Phylum) %>% unique()
+
+mpse2
+```
+
+## Rarefaction curves
+```{r Rarecurves, warning=FALSE}
+#Calculate Alpha diversity and rarefaction curves
+mpse2.ad <- mpse2 %>% mp_rrarefy() %>% mp_cal_alpha(.abundance = RareAbundance) %>% mp_cal_rarecurve(.abundance = RareAbundance)
+
+#Rarefaction Plot ungrouped
+mpse2.rcp1 <- mpse2.ad %>% mp_plot_rarecurve(.rare=RareAbundanceRarecurve, .alpha = Observe)
+mpse2.rcp1 <- mpse2.rcp1 + ylim(c(0, NA)) + xlim(c(0, NA))+ theme_bw()
+mpse2.rcp1 + labs(x = "Number of reads", y = "Species") + theme(legend.position = "none")
+
+#Rarefaction Plot grouped by State
+mpse2.rcp2 <- mpse2.ad %>% mp_plot_rarecurve(.rare=RareAbundanceRarecurve, .group = State, .alpha = Observe)
+mpse2.rcp2 <- mpse2.rcp2 + ylim(c(0, NA)) + theme_bw() + scale_fill_manual(values=c("#000080","#FF2400", "#61d04f", "#2297e6","#DF536B","#28e2e5", "#cd0bbc", "#f5c710", "#9e939e", "#20A486FF", "#481F70F5","#FCA636FF"))  + scale_color_manual(values=c("#000080","#FF2400", "#61d04f", "#2297e6","#DF536B","#28e2e5", "#cd0bbc", "#f5c710", "#9e939e", "#20A486FF", "#481F70F5", "#FCA636FF"))
+mpse2.rcp2 + labs(x = "Number of reads", y = "Species")
+
+```
+
+
+
+## Alpha diversity
+```{r Alpha-div, warning=FALSE}
+
+
+#Grouped by state
+
+mpse2.ap.p.st <- mpse2.ad %>% mp_plot_alpha(.group = State, .alpha=c(Observe, Chao1, ACE, Shannon, Simpson, Pielou),step_increase = 0.09) + scale_fill_manual(values=c("#000080","#FF2400", "#61d04f", "#2297e6","#DF536B","#28e2e5", "#cd0bbc", "#f5c710", "#9e939e", "#20A486FF", "#481F70F5","#FCA636FF" ), guide="none") + scale_color_manual(values=c("#000080","#FF2400", "#61d04f", "#2297e6","#DF536B","#28e2e5", "#cd0bbc", "#f5c710", "#9e939e", "#20A486FF", "#481F70F5","#FCA636FF"))
+mpse2.ap.p.st #Too many states to plot
+
+
+#Export data by state
+mpse2.ad.p.st <- mp_extract_sample(mpse2.ad)
+mpse2.ad.p.st <-as.data.frame(mpse2.ad.p.st[,-23]) %>% select(3,17:22) %>% group_by(State) %>% summarise(across(where(is.numeric), list(mean = mean, sd = sd)))
+#write.csv(mpse2.ad.p.st, file = "/users/PAS0247/torres704/Spore_traps_project/2025/Data_analysis/Alpha_diversity_by_state.csv")
+
+
+#Export data by state_site
+
+mpse2.ad.p.ss <- mp_extract_sample(mpse2.ad)
+mpse2.ad.p.ss <-as.data.frame(mpse2.ad.p.ss[,-23]) %>% select(5,17:22) %>% group_by(Group) %>% summarise(across(where(is.numeric), list(mean = mean, sd = sd)))
+#write.csv(mpse2.ad.p.ss, file = "/users/PAS0247/torres704/Spore_traps_project/Eric_morrison_pipeline/Analysis/Alpha_diversity_by_group.csv")
+
+```
+
+
+# Taxonomy abundance (top 30 taxa) grouped by location (Group)
+```{r,Taxonomy, out.width="100%", warning=FALSE}
+tax2.ab <- mpse2.ad %>% mp_cal_abundance( .abundance = RareAbundance) %>% mp_cal_abundance(.abundance=RareAbundance, .group=Group)
+
+p <- tax2.ab%>% mp_plot_abundance(.abundance=RareAbundance, .group=Group, taxa.class = Phylum, topn = 30, plot.group = TRUE, geom = "bar") + theme(legend.position="right",legend.key.size = unit(0.5, 'cm'), legend.text = element_text(size = 10, face = "italic")) +     guides(color = guide_legend(ncol = 1), fill = guide_legend(ncol = 1))
+p
+
+g <- tax2.ab%>% mp_plot_abundance(.abundance=RareAbundance, .group=Group, taxa.class = Genus, topn = 30, plot.group = TRUE, geom = "bar") + theme(legend.position="right",legend.key.size = unit(0.2, 'cm'), legend.text = element_text(size = 8, face = "italic"), axis.text.x = element_text(angle = 60, hjust = 1)) +     guides(color = guide_legend(ncol = 1), fill = guide_legend(ncol = 1))
+g
+
+```
+
+
+# PCoAs for the dataset
+```{r, PcoA_location, out.width="100%", warning=FALSE}
+
+#Standardize community data
+bd.st <- tax2.ab %>% mp_decostand(.abundance=Abundance)
+#Calculate the distance between the samples
+dist.st <- bd.st %>% mp_cal_dist(.abundance=hellinger, distmethod="bray")
+#Calculate principal coordinates analysis
+pco.st <- dist.st %>% mp_cal_pcoa(.abundance=hellinger, distmethod="bray")
+#Calculate adonis OH and NH locations
+ado.st <- pco.st %>% mp_adonis(.abundance=hellinger, .formula=~State, distmethod="bray", permutations=9999, action="add", by="terms")
+ado.st %>% mp_extract_internal_attr(name='adonis') 
+
+
+#Plot Pcoa
+pcoa.p.st <- ado.st %>% mp_plot_ord(.ord = pcoa, .group = State, .color = State, .size =
+1.2,.alpha = 1, ellipse = TRUE, show.legend = FALSE, show.adonis=TRUE) +
+scale_fill_manual(values=c("#000080","#FF2400", "#61d04f", "#2297e6","#DF536B","#28e2e5", "#cd0bbc", "#f5c710", "#9e939e", "#20A486FF", "#481F70F5","#FCA636FF"),
+guide="none") + scale_color_manual(values=c("#000080","#FF2400", "#61d04f", "#2297e6","#DF536B","#28e2e5", "#cd0bbc", "#f5c710", "#9e939e", "#20A486FF", "#481F70F5","#FCA636FF"), guide="none")
+pcoa.p.st + theme(plot.title = element_text(hjust = 0.5), plot.margin = margin(10, 20, 10, 10))
+
+
+
+```

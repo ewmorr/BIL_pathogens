@@ -1,0 +1,225 @@
+library(phyloseq)
+library(MicrobiotaProcess)
+library(ggplot2)
+source("detection_plot_processing/detection_plots_lib.R")
+
+# We will use MicroBiotaProcess package MPSE format 
+# so it is easy to integrate with other code
+# 
+#Loading ASV calling results
+#otus <- as.matrix(read.csv("data/FEDRR_2025_11182025/asv_tab.samps_and_baseline.csv", row.names = 1))
+otus <- as.matrix(read.csv("data/FEDRR_2025_11182025/ASVs_counts.tsv", row.names = 1, sep = "\t"))
+tax <- as.matrix(read.csv("data/FEDRR_2025_11182025/ASVs_taxonomy.tsv", row.names = 1, sep = "\t"))
+sam <- as.data.frame(read.csv("data/2025_metadata/metadata_P1P2.csv", row.names = 1))
+colnames(otus) = sub("_.*", "", colnames(otus))
+
+sam$mdy = sam$dateOrBaselineType
+sam$mdy[sam$mdy == "BLF"] = NA
+sam$mdy = lubridate::mdy(sam$mdy)
+sam$mdy %>% class()
+sam$mdy %>% as.Date() %>% class()
+###########################
+###########################
+# setting up MPSE obj
+# 
+## Basing from Eli's code
+
+# filter extra taxa out to match ASV tab
+#tax[row.names(tax) %in% colnames(otus),] -> tax
+
+## Generating phyloseq objects from dada2 results
+OTU = otu_table(otus, taxa_are_rows = T)
+TAX = phyloseq::tax_table(tax)
+SAM = sample_data(sam)
+st_physeq = phyloseq(OTU, TAX,SAM)
+st_physeq
+
+## Converting phyloseq object to mpse
+mpse2 <- st_physeq %>% as.MPSE()
+mpse2
+
+#filter out baseline samples
+mpse2 %>% dplyr::pull(dateOrBaselineType) %>% unique()
+mpse2 <- mpse2 %>% dplyr::filter(dateOrBaselineType != "BLF")
+    
+# Filter features without annotation in Phylum or Domain
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Kingdom) %>% unique()
+mpse2 <- mpse2 %>% dplyr::filter(!Kingdom %in% c("k__Unknown", "k__Viridiplantae","k__Rhizaria", "k__Metazoa", "k__Stramenopila"))
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Kingdom) %>% unique()
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Phylum) %>% unique()
+mpse2 <- mpse2 %>% dplyr::filter(!Phylum %in% c("p__un_k__Fungi"))
+mpse2 %>% mp_extract_feature(addtaxa=T) %>% dplyr::pull(Phylum) %>% unique()
+
+mpse2
+mpse2.VT <- mpse2 %>% dplyr::filter(State == "VT")
+mpse2.VT$dateOrBaselineType %>% unique()
+grep("neg",mpse2.VT.noZeros$sampleID)
+mpse2.VT.noZeros = mpse2.VT %>% dplyr::filter(Abundance > 0) %>% 
+    select(OTU, sampleID, State, Site, Lure, ymd = mdy, Kingdom, Phylum, Class, Order, Family, Genus, Species)
+mpse2.VT.noZeros
+nrow(mpse2.VT.noZeros)
+write.csv(mpse2.VT.noZeros, "data/FEDRR_2025_11182025/VT_spp_list.csv", row.names = F, quote = F)
+head(mpse2.VT.noZeros)
+nrow(mpse2.VT.noZeros)
+
+#########################################################
+#########################################################
+#########################################################
+# run the detect alg
+# 
+# taxonomic ID database and species of interest table
+dbPath <- "data/taxon_detect_test_data/sh_general_release_dynamic_s_all_19.02.2025.Bretziella.fasta"
+spp_search_terms <- read.csv("data/taxon_detect_test_data/species_search_terms.csv")
+
+
+taxon_detect_list.State_Site = taxon_detect(mpse=mpse2, groupVar = c("State", "Site"), abdVar = Abundance, dbPath = dbPath, speciesSearch = spp_search_terms)
+taxon_detect_list.State_Site_Lure = taxon_detect(mpse=mpse2, groupVar = c("State", "Site", "Lure"), abdVar = Abundance, dbPath = dbPath, speciesSearch = spp_search_terms)
+taxon_detect_list.Site_Lure_Date = taxon_detect(mpse=mpse2, groupVar = c("Site", "Lure", "mdy"), abdVar = Abundance, dbPath = dbPath, speciesSearch = spp_search_terms)
+
+library(ggplot2)
+
+# color palette for different detection types
+my_detect_pal = c(
+    "not detected" = "light grey",
+    "sp. not in db; no unkn. spp. match gen." = "dark grey",
+    "unknown spp. in gen. detected; sp. not in db" = "yellow",
+    "present <0.01%" = "#fee5d9",
+    "present 0.01-0.1%" = "#fcae91",
+    "present 0.1-1%" = "#fb6a4a",
+    "present 1-10%" = "#de2d26",
+    "present >10%" = "#a50f15"
+    )
+
+
+#species of different priority levels
+taxon_detect_list.State_Site$db_matches %>% 
+    filter(priority == "high") %>% 
+    pull(species_name) -> high_priority_spp
+taxon_detect_list.State_Site$db_matches %>% 
+    filter(priority == "moderate") %>% 
+    pull(species_name) -> med_priority_spp
+taxon_detect_list.State_Site$db_matches %>% 
+    filter(priority == "low") %>% 
+    pull(species_name) -> low_priority_spp
+
+# pull high priority species
+state_site_detections.high_priority <- taxon_detect_list.State_Site$detections_tab %>%
+    filter(Species %in% high_priority_spp & State == "VT")
+
+state_site_lure_detections.high_priority <- taxon_detect_list.State_Site_Lure$detections_tab %>%
+    filter(Species %in% high_priority_spp & State == "VT")
+# pull med priority species
+state_site_detections.med_priority <- taxon_detect_list.State_Site$detections_tab %>%
+    filter(Species %in% med_priority_spp & State == "VT")
+
+state_site_lure_detections.med_priority <- taxon_detect_list.State_Site_Lure$detections_tab %>%
+    filter(Species %in% med_priority_spp & State == "VT")
+# pull low priority species
+state_site_detections.low_priority <- taxon_detect_list.State_Site$detections_tab %>%
+    filter(Species %in% low_priority_spp & State == "VT")
+
+state_site_lure_detections.low_priority <- taxon_detect_list.State_Site_Lure$detections_tab %>%
+    filter(Species %in% low_priority_spp & State == "VT")
+
+#
+site_lure_date_detections.high_priority <- taxon_detect_list.Site_Lure_Date$detections_tab %>%
+    filter(Species %in% high_priority_spp & Site %in% c("CH", "EM", "LI"))
+
+site_lure_date_detections.med_priority <- taxon_detect_list.Site_Lure_Date$detections_tab %>%
+    filter(Species %in% med_priority_spp & Site %in% c("CH", "EM", "LI"))
+
+site_lure_date_detections.low_priority <- taxon_detect_list.Site_Lure_Date$detections_tab %>%
+    filter(Species %in% low_priority_spp & Site %in% c("CH", "EM", "LI"))
+
+head(site_lure_date_detections.low_priority)
+
+
+# two group vars
+state_site_lure_detections.high_priority %>%
+ggplot(aes(x = Site, y = Species, fill = Detections)) +
+    facet_wrap(~Lure, scales = "free_x", labeller = as_labeller(c("E" = "Ethanol", "EA" = "Ethanol + alpha-pinene", "I" = "Ips", "NIT" = "Nitidulid"))) +
+    geom_tile() +
+    scale_fill_manual(values = my_detect_pal) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 35, hjust = 1)
+    ) -> p1
+p1
+state_site_lure_detections.med_priority %>%
+ggplot(aes(x = Site, y = Species, fill = Detections)) +
+    facet_wrap(~Lure, scales = "free_x", labeller = as_labeller(c("E" = "Ethanol", "EA" = "Ethanol + alpha-pinene", "I" = "Ips", "NIT" = "Nitidulid"))) +
+    geom_tile() +
+    scale_fill_manual(values = my_detect_pal) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 35, hjust = 1)
+    ) -> p2
+p2
+state_site_lure_detections.low_priority %>%
+ggplot(aes(x = Site, y = Species, fill = Detections)) +
+    facet_wrap(~Lure, scales = "free_x", labeller = as_labeller(c("E" = "Ethanol", "EA" = "Ethanol + alpha-pinene", "I" = "Ips", "NIT" = "Nitidulid"))) +
+    geom_tile() +
+    scale_fill_manual(values = my_detect_pal) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 35, hjust = 1)
+    ) -> p3
+p3
+pdf("figures/FEDRR_2025_11182025/MicrobiotaProcess/VT_detections_lure_site.pdf", width = 10)
+p1
+p2
+p3
+dev.off()
+
+
+
+
+
+
+
+
+
+
+# three group vars
+site_lure_date_detections.high_priority %>%
+ggplot(aes(x = mdy, y = Lure, fill = Detections)) +
+    facet_grid(Site~Species, scales = "free_x") +
+    geom_tile() +
+    scale_fill_manual(values = my_detect_pal) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 35, hjust = 1)
+    ) -> p1
+p1
+state_site_lure_detections.med_priority %>%
+ggplot(aes(x = mdy, y = Lure, fill = Detections)) +
+    facet_grid(Species~Site, scales = "free_x") +
+    geom_tile() +
+    scale_fill_manual(values = my_detect_pal) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 35, hjust = 1)
+    ) -> p2
+p2
+state_site_lure_detections.low_priority %>%
+ggplot(aes(x = mdy, y = Lure, fill = Detections)) +
+    facet_grid(Species~Site, scales = "free_x") +
+    geom_tile() +
+    scale_fill_manual(values = my_detect_pal) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 35, hjust = 1)
+    ) -> p3
+p3
+
+pdf("figures/FEDRR_2025_11182025/MicrobiotaProcess/detections_state_site_lure.pdf", width = 11, height = 13)
+p1
+p2
+p3
+dev.off()

@@ -27,4 +27,8 @@ sampleID.split = strsplit(full_metadata$sampleID, " ", fixed = T)
 full_metadata$dateOrBaselineType = lapply(sampleID.split, function(x) x[2]) %>% unlist
 full_metadata$SequenceID = sub("-", ".", full_metadata$SequenceID)
 
-write.csv(full_metadata %>% select(-BaselineType), "data/2024_metadata/collated/collated_metadata_NY-OH-IA-NH_02102025.csv", row.names = F)
+colnames(full_metadata)
+head(full_metadata)
+
+
+write.csv(full_metadata %>% select(-BaselineType), "data/2024_metadata/collated/collated_metadata_NY-OH-IA-NH_02102025.redo.csv", row.names = F)

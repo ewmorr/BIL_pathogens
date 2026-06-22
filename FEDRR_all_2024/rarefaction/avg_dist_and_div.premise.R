@@ -317,6 +317,9 @@ gc()
 ############################################
 # samps.NH
 rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps.NH.rds")
+#rarefactions_list = rarefactions_list.samps.NH
+#rm(rarefactions_list.samps.NH)
+#gc()
 
 #calc distance and alpha-div
 ## take avg
@@ -326,7 +329,8 @@ rarefactions_list = readRDS("~/FEDRR_all_2024/rarefactions/rarefactions.samps.NH
 ## binary bray
 bray_binary_list = lapply(rarefactions_list, vegdist, method = "bray", binary = T, diag = T, upper = T)
 bray_binary_avg = avg_matrix_list(bray_binary_list) %>% as.dist()
-saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps.NH.rds")
+#saveRDS(bray_binary_avg, "~/FEDRR_all_2024/rarefactions/bray-binary.samps.NH.rds")
+saveRDS(bray_binary_avg, "data/FEDRR_all_2024/bray-binary.samps.NH.rds")
 rm(bray_binary_list)
 rm(bray_binary_avg)
 gc()
@@ -334,7 +338,8 @@ gc()
 #log bray
 bray_logCts_list = lapply(rarefactions_list, log_dist, method = "bray")
 bray_logCts_avg = avg_matrix_list(bray_logCts_list) %>% as.dist()
-saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps.NH.rds")
+#saveRDS(bray_logCts_avg, "~/FEDRR_all_2024/rarefactions/bray-logCounts.samps.NH.rds")
+saveRDS(bray_logCts_avg, "data/FEDRR_all_2024/bray-logCounts.samps.NH.rds")
 rm(bray_logCts_list)
 rm(bray_logCts_avg)
 gc()
@@ -353,7 +358,8 @@ div_avg = data.frame(
     richness = avg_matrix_list(richness_list),
     stringsAsFactors = F
 )
-write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps.NH.csv", row.names = F)
+#write.csv(div_avg, "~/FEDRR_all_2024/rarefactions/diversity.samps.NH.csv", row.names = F)
+write.csv(div_avg, "data/FEDRR_all_2024/diversity.samps.NH.csv", row.names = F)
 rm(shannon_list)
 rm(simpson_list)
 rm(richness_list)
@@ -367,7 +373,8 @@ avg_counts = avg_matrix_list(rarefactions_list)
 rm(rarefactions_list)
 gc()
 
-write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps.NH.csv")
+#write.csv(avg_counts, "~/FEDRR_all_2024/rarefactions/asv_tab.rarefaction_avg.samps.NH.csv")
+write.csv(avg_counts, "data/FEDRR_all_2024/asv_tab.rarefaction_avg.samps.NH.csv")
 
 rm(avg_counts)
 gc()
