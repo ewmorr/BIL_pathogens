@@ -44,6 +44,7 @@ nextflow run "$WORKFLOW_DIR" \
     --outdir "/mnt/gpfs01/home/garnas/ewj4/FEDRR_project/FEDRR_2025_ampliseq_out" \
     --multiple_sequencing_runs \
     --ignore_empty_input_files \
+    --ignore_failed_trimming \
     --illumina_pe_its \
     --dada_ref_tax_custom "/mnt/gpfs01/home/garnas/ewj4/blast_dbs/unite_07252023/sh_general_allEuk_dynamic_singletons_25072023.ITS2.SPP_OF_CONCERN_CORRECTIONS.fasta" \
     --skip_dada_addspecies \
